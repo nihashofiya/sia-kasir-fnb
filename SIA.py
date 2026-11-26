@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + MULTI-LAYERED DEEP SHADOWS ---
+# --- TERAPKAN CSS BERDIMENSI 3D + GARIS TABEL HITAM TEGAS ---
 st.markdown(
     f"""
     <style>
@@ -193,7 +193,45 @@ st.markdown(
         transition: all 0.25s ease;
     }}
 
-    /* Kotak Total Harga Besar (Layar Kasir 3D Cekung + Bayangan Pendar Warna) */
+    /* TABEL JURNAL DENGAN GARIS HITAM TEGAS & BERSIH */
+    .jurnal-table {{
+        width: 100%;
+        border-collapse: collapse;
+        background-color: {warna_card};
+        border: 2px solid #111827;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.14);
+        font-size: 14px;
+        margin-bottom: 14px;
+    }}
+    .jurnal-table th {{
+        background-color: {warna_primary};
+        color: #FFFFFF !important;
+        font-weight: 700;
+        text-align: left;
+        padding: 11px 14px;
+        border: 1.5px solid #111827;
+    }}
+    .jurnal-table td {{
+        padding: 9px 14px;
+        border: 1px solid #111827;
+        color: {warna_text} !important;
+        background-color: {warna_card};
+    }}
+    .jurnal-table tr.baris-kredit td {{
+        background-color: {warna_bg}55;
+    }}
+    .jurnal-table td.angka {{
+        text-align: right;
+        font-family: 'Courier New', monospace;
+        font-weight: 600;
+    }}
+    .jurnal-table th.angka {{
+        text-align: right;
+    }}
+
+    /* Kotak Total Harga Besar */
     .total-display {{
         background: linear-gradient(145deg, {warna_card}, {warna_bg});
         border: 2px solid {warna_primary};
@@ -229,7 +267,7 @@ st.markdown(
             0 4px 8px -2px rgba(0, 0, 0, 0.06);
     }}
 
-    /* Kartu Produk di Katalog Kanan (Floating 3D Card dengan Deep Shadow) */
+    /* Kartu Produk di Katalog Kanan */
     .product-box {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 1px solid {warna_border};
@@ -278,7 +316,7 @@ st.markdown(
         font-weight: 600;
     }}
 
-    /* Tombol Utama 3D Tactile Push-Button + Colored Ambient Shadow */
+    /* Tombol Utama 3D Tactile Push-Button */
     div.stButton > button[kind="primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border: 1px solid {warna_primary_dark} !important;
@@ -308,7 +346,7 @@ st.markdown(
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder (+ Tambah, Batal, Hapus) 3D Tactile + Deep Shadow */
+    /* Tombol Sekunder (+ Tambah, Batal, Hapus) */
     div.stButton > button[kind="secondary"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1px solid {warna_border} !important;
@@ -357,7 +395,7 @@ st.markdown(
         border-bottom-width: 1px !important;
     }}
 
-    /* Kartu Metrik Keuangan 3D dengan Deep Shadow */
+    /* Kartu Metrik Keuangan 3D */
     div[data-testid="stMetric"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 1px solid {warna_border};
@@ -857,31 +895,93 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                         st.rerun()
 
                 if idx < len(df_kas) - 1:
-                    st.markdown(f"<hr style='margin: 4px 0; border-top: 1px solid {warna_border};'>", unsafe_allow_html=True)
+                    st.markdown("<hr style='margin: 4px 0; border-top: 1.5px solid #111827;'>", unsafe_allow_html=True)
 
-    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
+    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN (GARIS HITAM TEGAS) ---
     with tab2:
         st.markdown("#### 📖 Jurnal Umum — Siklus Pendapatan (Penjualan)")
         if not df_jurnal_umum.empty:
             tot_d, tot_k = df_jurnal_umum["Debit"].sum(), df_jurnal_umum["Kredit"].sum()
-            df_ju_tampil = df_jurnal_umum.copy()
-            df_ju_tampil["Debit"] = df_ju_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-            df_ju_tampil["Kredit"] = df_ju_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-            st.table(df_ju_tampil)
+            baris_ju_html = ""
+            for _, r in df_jurnal_umum.iterrows():
+                is_kredit = r["Kredit"] > 0
+                kelas_baris = "baris-kredit" if is_kredit else ""
+                nama_akun_html = f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{r['Akun'].strip()}" if is_kredit else f"<b>{r['Akun']}</b>"
+                debit_str = f"Rp {r['Debit']:,.0f}" if r["Debit"] > 0 else "-"
+                kredit_str = f"Rp {r['Kredit']:,.0f}" if r["Kredit"] > 0 else "-"
+                baris_ju_html += f"""
+                <tr class="{kelas_baris}">
+                    <td>{r['Waktu']}</td>
+                    <td>{r['Ref']}</td>
+                    <td>{nama_akun_html}</td>
+                    <td class="angka">{debit_str}</td>
+                    <td class="angka">{kredit_str}</td>
+                </tr>
+                """
+
+            tabel_ju_html = f"""
+            <table class="jurnal-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Ref</th>
+                        <th>Nama Akun</th>
+                        <th class="angka">Debit</th>
+                        <th class="angka">Kredit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {baris_ju_html}
+                </tbody>
+            </table>
+            """
+            st.markdown(tabel_ju_html, unsafe_allow_html=True)
             if tot_d == tot_k:
                 st.success(f"✅ JURNAL UMUM BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
         else:
             st.info("Belum ada transaksi penjualan yang tercatat pada Jurnal Umum.")
 
-    # --- TAB 3: JURNAL KAS KECIL TERPISAH ---
+    # --- TAB 3: JURNAL KAS KECIL TERPISAH (GARIS HITAM TEGAS) ---
     with tab3:
         st.markdown("#### 🧾 Jurnal Kas Kecil (*Petty Cash Journal*)")
         if not df_jurnal_kk.empty:
             tot_d_kk, tot_k_kk = df_jurnal_kk["Debit"].sum(), df_jurnal_kk["Kredit"].sum()
-            df_jkk_tampil = df_jurnal_kk.copy()
-            df_jkk_tampil["Debit"] = df_jkk_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-            df_jkk_tampil["Kredit"] = df_jkk_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-            st.table(df_jkk_tampil)
+            baris_jkk_html = ""
+            for _, r in df_jurnal_kk.iterrows():
+                is_kredit = r["Kredit"] > 0
+                kelas_baris = "baris-kredit" if is_kredit else ""
+                nama_akun_html = f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{r['Akun'].strip()}" if is_kredit else f"<b>{r['Akun']}</b>"
+                debit_str = f"Rp {r['Debit']:,.0f}" if r["Debit"] > 0 else "-"
+                kredit_str = f"Rp {r['Kredit']:,.0f}" if r["Kredit"] > 0 else "-"
+                baris_jkk_html += f"""
+                <tr class="{kelas_baris}">
+                    <td>{r['Waktu']}</td>
+                    <td>{r['Ref']}</td>
+                    <td>{r['PJ']}</td>
+                    <td>{nama_akun_html}</td>
+                    <td class="angka">{debit_str}</td>
+                    <td class="angka">{kredit_str}</td>
+                </tr>
+                """
+
+            tabel_jkk_html = f"""
+            <table class="jurnal-table">
+                <thead>
+                    <tr>
+                        <th>Waktu</th>
+                        <th>Ref</th>
+                        <th>Penanggung Jawab</th>
+                        <th>Nama Akun</th>
+                        <th class="angka">Debit</th>
+                        <th class="angka">Kredit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {baris_jkk_html}
+                </tbody>
+            </table>
+            """
+            st.markdown(tabel_jkk_html, unsafe_allow_html=True)
             if tot_d_kk == tot_k_kk:
                 st.success(f"✅ JURNAL KAS KECIL BALANCE: Total Debit (Rp {tot_d_kk:,.0f}) = Total Kredit (Rp {tot_k_kk:,.0f})")
         else:
