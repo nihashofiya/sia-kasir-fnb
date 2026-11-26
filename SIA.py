@@ -382,4 +382,285 @@ if menu_aktif == "🛒 Kasir (POS)":
             )
 
             produk_tampil = [
-                p for p in PRODUK_F
+                p for p in PRODUK_FNB
+                if (kategori_pilih == "Semua" or p["kategori"] == kategori_pilih)
+                and (cari_produk.lower() in p["nama"].lower())
+            ]
+
+            st.write("")
+            cols_per_row = 4
+            for i in range(0, len(produk_tampil), cols_per_row):
+                row_cols = st.columns(cols_per_row)
+                for j in range(cols_per_row):
+                    if i + j < len(produk_tampil):
+                        item = produk_tampil[i + j]
+                        with row_cols[j]:
+                            st.markdown(
+                                f"""
+                                <div class="product-box">
+                                    <div class="product-emoji">{item['ikon']}</div>
+                                    <div class="product-name">{item['nama']}</div>
+                                    <div class="product-price">Rp {item['harga']:,.0f}</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+                            if st.button("+ Tambah", key=f"add_{item['nama']}", use_container_width=True):
+                                st.session_state.keranjang[item["nama"]] = (
+                                    st.session_state.keranjang.get(item["nama"], 0) + 1
+                                )
+                                st.rerun()
+
+# ==========================================================
+# HALAMAN 2: KAS KECIL (MASUK & KELUAR)
+# ==========================================================
+elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
+    st.subheader("💸 Siklus Kas Kecil (Petty Cash Management)")
+    with st.container(border=True):
+        jenis_transaksi = st.radio(
+            "Pilih Jenis Mutasi Kas Kecil:",
+            ["Pengeluaran Kas Kecil (Keluar)", "Pengisian Dana Kas Kecil (Masuk)"],
+            horizontal=True,
+        )
+
+        with st.form("form_kas_kecil", clear_on_submit=True):
+            if "Masuk" in jenis_transaksi:
+                keterangan = st.text_input("Keterangan (Contoh: Pengisian Saldo Awal Kas Kecil)")
+                akun_lawan = st.selectbox("Sumber Dana (Kredit):", ["Kas Besar / Brankas", "Bank BCA"])
+            else:
+                keterangan = st.text_input("Keterangan Pengeluaran (Contoh: Beli Es Batu, Galon Air)")
+                akun_lawan = st.selectbox(
+                    "Kategori Beban (Debit):",
+                    ["Beban Bahan Penolong Dapur", "Beban Perlengkapan Toko", "Beban Transportasi & Kurir", "Beban Lain-lain"],
+                )
+
+            nominal = st.number_input("Nominal (Rp):", min_value=1000, step=5000)
+            pj = st.text_input("Nama Penanggung Jawab:")
+
+            if st.form_submit_button("Simpan Mutasi Kas Kecil", type="primary"):
+                if keterangan and pj:
+                    waktu_skrg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    tipe = "Masuk" if "Masuk" in jenis_transaksi else "Keluar"
+                    c.execute(
+                        """INSERT INTO kas_kecil (waktu, jenis, keterangan, akun_lawan, jumlah, penanggung_jawab)
+                           VALUES (?, ?, ?, ?, ?, ?)""",
+                        (waktu_skrg, tipe, keterangan, akun_lawan, nominal, pj),
+                    )
+                    conn.commit()
+                    st.success(f"✅ Transaksi Kas Kecil ({tipe}) berhasil disimpan!")
+                else:
+                    st.warning("Lengkapi keterangan dan nama penanggung jawab.")
+
+# ==========================================================
+# HALAMAN 3: LAPORAN KAS, JURNAL UMUM & JURNAL KAS KECIL TERPISAH
+# ==========================================================
+elif menu_aktif == "📊 Laporan Kas & Jurnal":
+    st.subheader("📊 Laporan Arus Kas & Jurnal Akuntansi")
+
+    df_penjualan = pd.read_sql_query("SELECT * FROM penjualan", conn)
+    df_kas_kecil = pd.read_sql_query("SELECT * FROM kas_kecil", conn)
+
+    kas_masuk_tunai = df_penjualan[df_penjualan["metode"] == "Cash"]["total_harga"].sum() if not df_penjualan.empty else 0
+    kas_masuk_qris = df_penjualan[df_penjualan["metode"] == "QRIS"]["total_harga"].sum() if not df_penjualan.empty else 0
+    kk_masuk = df_kas_kecil[df_kas_kecil["jenis"] == "Masuk"]["jumlah"].sum() if not df_kas_kecil.empty else 0
+    kk_keluar = df_kas_kecil[df_kas_kecil["jenis"] == "Keluar"]["jumlah"].sum() if not df_kas_kecil.empty else 0
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Kas Laci Penjualan (Cash)", f"Rp {saldo_awal_kas + kas_masuk_tunai:,.0f}")
+    c2.metric("Rekening Bank / QRIS", f"Rp {kas_masuk_qris:,.0f}")
+    c3.metric("Dana Kas Kecil Masuk", f"Rp {kk_masuk:,.0f}")
+    c4.metric("Sisa Saldo Kas Kecil", f"Rp {kk_masuk - kk_keluar:,.0f}")
+
+    # --- MENYIAPKAN DATA BUKU KAS (DENGAN ID BARIS UNTUK TOMBOL HAPUS) ---
+    mutasi_kas = [
+        {
+            "tipe_db": "awal",
+            "id_db": None,
+            "Waktu": "Awal Shift",
+            "No. Bukti": "OPEN-00",
+            "Pos Kas": "Kas Laci Kasir",
+            "Keterangan": "Saldo Awal Modal Kasir",
+            "Pemasukan (Debit)": saldo_awal_kas,
+            "Pengeluaran (Kredit)": 0,
+        }
+    ]
+    for _, row in df_penjualan.iterrows():
+        mutasi_kas.append(
+            {
+                "tipe_db": "penjualan",
+                "id_db": row["id"],
+                "Waktu": row["waktu"],
+                "No. Bukti": row["no_faktur"],
+                "Pos Kas": "Kas Laci Kasir" if row["metode"] == "Cash" else "Bank / QRIS",
+                "Keterangan": f"Penjualan {row['item']} ({row['jumlah']}x)",
+                "Pemasukan (Debit)": row["total_harga"],
+                "Pengeluaran (Kredit)": 0,
+            }
+        )
+    for _, row in df_kas_kecil.iterrows():
+        is_masuk = row["jenis"] == "Masuk"
+        mutasi_kas.append(
+            {
+                "tipe_db": "kas_kecil",
+                "id_db": row["id"],
+                "Waktu": row["waktu"],
+                "No. Bukti": f"PC-{row['id']:03d}",
+                "Pos Kas": "Kas Kecil",
+                "Keterangan": f"[{row['jenis'].upper()}] {row['keterangan']} ({row['penanggung_jawab']})",
+                "Pemasukan (Debit)": row["jumlah"] if is_masuk else 0,
+                "Pengeluaran (Kredit)": 0 if is_masuk else row["jumlah"],
+            }
+        )
+
+    df_kas = pd.DataFrame(mutasi_kas)
+    df_kas["Saldo Kumulatif"] = (df_kas["Pemasukan (Debit)"] - df_kas["Pengeluaran (Kredit)"]).cumsum()
+    df_kas_excel = df_kas.drop(columns=["tipe_db", "id_db"])
+
+    # --- 1. JURNAL UMUM KHUSUS PENJUALAN ---
+    jurnal_umum_list = []
+    for _, row in df_penjualan.iterrows():
+        akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
+        jurnal_umum_list.extend([
+            {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
+            {"Waktu": "", "Ref": "", "Akun": f"    Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
+            {"Waktu": "", "Ref": "", "Akun": "    Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
+        ])
+    df_jurnal_umum = (
+        pd.DataFrame(jurnal_umum_list)
+        if jurnal_umum_list
+        else pd.DataFrame(columns=["Waktu", "Ref", "Akun", "Debit", "Kredit"])
+    )
+
+    # --- 2. JURNAL KAS KECIL TERPISAH ---
+    jurnal_kk_list = []
+    for _, row in df_kas_kecil.iterrows():
+        if row["jenis"] == "Masuk":
+            jurnal_kk_list.extend([
+                {
+                    "Waktu": row["waktu"],
+                    "Ref": f"PC-IN-{row['id']:03d}",
+                    "PJ": row["penanggung_jawab"],
+                    "Akun": f"Kas Kecil ({row['keterangan']})",
+                    "Debit": row["jumlah"],
+                    "Kredit": 0,
+                },
+                {
+                    "Waktu": "",
+                    "Ref": "",
+                    "PJ": "",
+                    "Akun": f"    {row['akun_lawan']}",
+                    "Debit": 0,
+                    "Kredit": row["jumlah"],
+                },
+            ])
+        else:
+            jurnal_kk_list.extend([
+                {
+                    "Waktu": row["waktu"],
+                    "Ref": f"PC-OUT-{row['id']:03d}",
+                    "PJ": row["penanggung_jawab"],
+                    "Akun": f"{row['akun_lawan']} ({row['keterangan']})",
+                    "Debit": row["jumlah"],
+                    "Kredit": 0,
+                },
+                {
+                    "Waktu": "",
+                    "Ref": "",
+                    "PJ": "",
+                    "Akun": "    Kas Kecil",
+                    "Debit": 0,
+                    "Kredit": row["jumlah"],
+                },
+            ])
+    df_jurnal_kk = (
+        pd.DataFrame(jurnal_kk_list)
+        if jurnal_kk_list
+        else pd.DataFrame(columns=["Waktu", "Ref", "PJ", "Akun", "Debit", "Kredit"])
+    )
+
+    # --- TOMBOL EXPORT EXCEL (.XLSX) DENGAN SHEET JURNAL TERPISAH ---
+    buffer_excel = io.BytesIO()
+    with pd.ExcelWriter(buffer_excel, engine="openpyxl") as writer:
+        df_kas_excel.to_excel(writer, sheet_name="Buku_Kas", index=False)
+        df_jurnal_umum.to_excel(writer, sheet_name="Jurnal_Umum_Penjualan", index=False)
+        df_jurnal_kk.to_excel(writer, sheet_name="Jurnal_Kas_Kecil", index=False)
+        df_penjualan.to_excel(writer, sheet_name="Rincian_Penjualan", index=False)
+        df_kas_kecil.to_excel(writer, sheet_name="Rincian_Kas_Kecil", index=False)
+
+    st.download_button(
+        label="📥 Download Laporan Lengkap Format Excel (.xlsx)",
+        data=buffer_excel.getvalue(),
+        file_name=f"Laporan_SIA_FnB_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type="primary",
+    )
+
+    # --- 3 TAB LAPORAN TERPISAH ---
+    tab1, tab2, tab3 = st.tabs([
+        "📒 Laporan Mutasi Kas (Buku Kas)",
+        "📖 Jurnal Umum (Penjualan)",
+        "🧾 Jurnal Kas Kecil (Petty Cash)",
+    ])
+
+    # --- TAB 1: BUKU KAS DENGAN TOMBOL HAPUS DI SAMPING BARIS ---
+    with tab1:
+        st.caption("Klik tombol **🗑️** di ujung kanan baris apabila ingin membatalkan/menghapus transaksi tertentu.")
+        with st.container(border=True):
+            h_cols = st.columns([1.8, 1.2, 1.3, 2.7, 1.3, 1.3, 1.4, 0.7])
+            headers = ["Waktu", "No. Bukti", "Pos Kas", "Keterangan", "Pemasukan", "Pengeluaran", "Saldo", "Aksi"]
+            for col, text in zip(h_cols, headers):
+                col.markdown(f"**{text}**")
+            st.divider()
+
+            for idx, r in df_kas.iterrows():
+                row_cols = st.columns([1.8, 1.2, 1.3, 2.7, 1.3, 1.3, 1.4, 0.7])
+                row_cols[0].write(r["Waktu"])
+                row_cols[1].write(r["No. Bukti"])
+                row_cols[2].write(r["Pos Kas"])
+                row_cols[3].write(r["Keterangan"])
+                row_cols[4].write(f"Rp {r['Pemasukan (Debit)']:,.0f}")
+                row_cols[5].write(f"Rp {r['Pengeluaran (Kredit)']:,.0f}")
+                row_cols[6].markdown(f"**Rp {r['Saldo Kumulatif']:,.0f}**")
+
+                if r["tipe_db"] == "awal":
+                    row_cols[7].markdown("<div style='padding-top:6px; color:#9CA3AF;'>🔒</div>", unsafe_allow_html=True)
+                else:
+                    if row_cols[7].button("🗑️", key=f"del_{r['tipe_db']}_{r['id_db']}", help="Batalkan / hapus transaksi ini"):
+                        if r["tipe_db"] == "penjualan":
+                            c.execute("DELETE FROM penjualan WHERE id = ?", (r["id_db"],))
+                        elif r["tipe_db"] == "kas_kecil":
+                            c.execute("DELETE FROM kas_kecil WHERE id = ?", (r["id_db"],))
+                        conn.commit()
+                        st.toast(f"Transaksi {r['No. Bukti']} berhasil dihapus!", icon="🗑️")
+                        st.rerun()
+
+                if idx < len(df_kas) - 1:
+                    st.markdown("<hr style='margin: 4px 0; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
+
+    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
+    with tab2:
+        st.markdown("#### 📖 Jurnal Umum — Siklus Pendapatan (Penjualan)")
+        if not df_jurnal_umum.empty:
+            tot_d, tot_k = df_jurnal_umum["Debit"].sum(), df_jurnal_umum["Kredit"].sum()
+            df_ju_tampil = df_jurnal_umum.copy()
+            df_ju_tampil["Debit"] = df_ju_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_ju_tampil["Kredit"] = df_ju_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.table(df_ju_tampil)
+            if tot_d == tot_k:
+                st.success(f"✅ JURNAL UMUM BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
+        else:
+            st.info("Belum ada transaksi penjualan yang tercatat pada Jurnal Umum.")
+
+    # --- TAB 3: JURNAL KAS KECIL TERPISAH ---
+    with tab3:
+        st.markdown("#### 🧾 Jurnal Kas Kecil (*Petty Cash Journal*)")
+        if not df_jurnal_kk.empty:
+            tot_d_kk, tot_k_kk = df_jurnal_kk["Debit"].sum(), df_jurnal_kk["Kredit"].sum()
+            df_jkk_tampil = df_jurnal_kk.copy()
+            df_jkk_tampil["Debit"] = df_jkk_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_jkk_tampil["Kredit"] = df_jkk_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.table(df_jkk_tampil)
+            if tot_d_kk == tot_k_kk:
+                st.success(f"✅ JURNAL KAS KECIL BALANCE: Total Debit (Rp {tot_d_kk:,.0f}) = Total Kredit (Rp {tot_k_kk:,.0f})")
+        else:
+            st.info("Belum ada mutasi kas kecil (pengisian maupun pengeluaran) yang tercatat.")
