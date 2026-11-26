@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + EFEK POP-IT & HOVER WARNA TOMBOL BAYAR ---
+# --- TERAPKAN CSS BERDIMENSI 3D + EFEK POP-IT & HOVER WARNA DI SEMUA TOMBOL ---
 st.markdown(
     f"""
     <style>
@@ -258,7 +258,8 @@ st.markdown(
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
     .product-box:hover,
-    div[data-testid="column"]:has(button:hover) .product-box {{
+    div[data-testid="column"]:has(button:hover) .product-box,
+    div[data-testid="stColumn"]:has(button:hover) .product-box {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
@@ -278,7 +279,8 @@ st.markdown(
         transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
     .product-box:hover .product-emoji,
-    div[data-testid="column"]:has(button:hover) .product-emoji {{
+    div[data-testid="column"]:has(button:hover) .product-emoji,
+    div[data-testid="stColumn"]:has(button:hover) .product-emoji {{
         transform: scale(1.18) translateY(-2px);
         filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
     }}
@@ -302,7 +304,9 @@ st.markdown(
     .product-box:hover .product-name,
     .product-box:hover .product-price,
     div[data-testid="column"]:has(button:hover) .product-name,
-    div[data-testid="column"]:has(button:hover) .product-price {{
+    div[data-testid="column"]:has(button:hover) .product-price,
+    div[data-testid="stColumn"]:has(button:hover) .product-name,
+    div[data-testid="stColumn"]:has(button:hover) .product-price {{
         color: #FFFFFF !important;
         opacity: 1 !important;
     }}
@@ -314,11 +318,11 @@ st.markdown(
         border: 1.5px solid {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        font-weight: 700;
-        border-radius: 12px;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
         box-shadow:
             0 12px 22px -5px {warna_primary}88,
-            0 6px 12px rgba(0, 0, 0, 0.22);
+            0 6px 12px rgba(0, 0, 0, 0.22) !important;
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
     div.stButton > button[kind="primary"]:hover,
@@ -338,7 +342,7 @@ st.markdown(
         color: #FFFFFF !important;
     }}
 
-    /* Semua Tombol Sekunder (+ Tambah, Batal, Hapus 🗑️, +, -, Reset) -> Berubah Warna Seperti "Bayar" + Pop-It */
+    /* Tombol Sekunder (+ Tambah, Batal, Hapus 🗑️, Reset) -> Berubah Warna Jadi Seperti "Bayar" + Efek Pop-It */
     div.stButton > button[kind="secondary"],
     div.stButton > button[data-testid="stBaseButton-secondary"],
     div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]) {{
@@ -346,33 +350,33 @@ st.markdown(
         border: 1.5px solid {warna_border} !important;
         border-bottom: 4px solid {warna_border} !important;
         color: {warna_text} !important;
-        font-weight: 600;
-        border-radius: 11px;
+        font-weight: 600 !important;
+        border-radius: 11px !important;
         box-shadow:
             0 8px 16px -4px rgba(0, 0, 0, 0.14),
-            0 3px 6px rgba(0, 0, 0, 0.08);
+            0 3px 6px rgba(0, 0, 0, 0.08) !important;
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-    div.stButton > button[kind="secondary"]:hover:not(:disabled),
-    div.stButton > button[data-testid="stBaseButton-secondary"]:hover:not(:disabled),
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):hover:not(:disabled) {{
+    div.stButton > button[kind="secondary"]:not(:disabled):hover,
+    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):hover,
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):hover {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        transform: translateY(-4px) scale(1.06) !important;
+        transform: translateY(-4px) scale(1.08) !important;
         box-shadow:
-            0 16px 26px -5px {warna_primary}AA,
+            0 16px 26px -5px {warna_primary}99,
             0 8px 15px rgba(0, 0, 0, 0.24) !important;
     }}
-    div.stButton > button[kind="secondary"]:hover:not(:disabled) *,
-    div.stButton > button[data-testid="stBaseButton-secondary"]:hover:not(:disabled) *,
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):hover:not(:disabled) * {{
+    div.stButton > button[kind="secondary"]:not(:disabled):hover *,
+    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):hover *,
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):hover * {{
         color: #FFFFFF !important;
     }}
-    div.stButton > button[kind="secondary"]:active:not(:disabled),
-    div.stButton > button[data-testid="stBaseButton-secondary"]:active:not(:disabled),
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):active:not(:disabled) {{
+    div.stButton > button[kind="secondary"]:not(:disabled):active,
+    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):active,
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):active {{
         transform: translateY(3px) scale(0.95) !important;
         border-bottom-width: 1px !important;
     }}
