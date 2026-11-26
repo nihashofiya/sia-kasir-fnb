@@ -115,17 +115,16 @@ conn.commit()
 
 # --- DATA KATALOG PRODUK FNB ---
 PRODUK_FNB = [
-    {"nama": "Black Burger", "harga": 40000, "kategori": "Makanan", "ikon": "🍔"},
-    {"nama": "Mexican Burger", "harga": 45000, "kategori": "Makanan", "ikon": "🌮"},
-    {"nama": "Ham Sandwich", "harga": 35000, "kategori": "Makanan", "ikon": "🥪"},
-    {"nama": "Nasi Ayam Geprek", "harga": 25000, "kategori": "Makanan", "ikon": "🍗"},
-    {"nama": "French Fries", "harga": 20000, "kategori": "Snack", "ikon": "🍟"},
-    {"nama": "Croissant Butter", "harga": 22000, "kategori": "Snack", "ikon": "🥐"},
+  {"nama": "Burger", "harga": 20000, "kategori": "Makanan", "ikon": "🍔"},
+    {"nama": "Sandwich", "harga": 15000, "kategori": "Makanan", "ikon": "🥪"},
+    {"nama": "Nasi Ayam Geprek", "harga": 10000, "kategori": "Makanan", "ikon": "🍗"},
+    {"nama": "Mie Goreng", "harga": 8000, "kategori": "Makanan", "ikon": "🍜"},
+    {"nama": "French Fries", "harga": 10000, "kategori": "Snack", "ikon": "🍟"},
+    {"nama": "Croissant Butter", "harga": 20000, "kategori": "Snack", "ikon": "🥐"},
     {"nama": "Kopi Susu Aren", "harga": 18000, "kategori": "Minuman", "ikon": "🧋"},
     {"nama": "Americano Ice", "harga": 15000, "kategori": "Minuman", "ikon": "☕"},
     {"nama": "Matcha Latte", "harga": 24000, "kategori": "Minuman", "ikon": "🍵"},
-    {"nama": "Fanta Strawberry", "harga": 12000, "kategori": "Minuman", "ikon": "🥤"},
-    {"nama": "Fanta Orange", "harga": 12000, "kategori": "Minuman", "ikon": "🧃"},
+    {"nama": "Fanta Strawberry", "harga": 10000, "kategori": "Minuman", "ikon": "🥤"},
     {"nama": "Es Teh Manis", "harga": 8000, "kategori": "Minuman", "ikon": "🧊"},
 ]
 
