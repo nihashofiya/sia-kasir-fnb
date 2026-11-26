@@ -308,7 +308,8 @@ st.markdown(
     }}
 
     /* Tombol Utama ("Bayar") 3D + Efek Pop-It */
-    div.stButton > button[kind="primary"] {{
+    div.stButton > button[kind="primary"],
+    div.stButton > button[data-testid="stBaseButton-primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border: 1.5px solid {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
@@ -320,22 +321,27 @@ st.markdown(
             0 6px 12px rgba(0, 0, 0, 0.22);
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-    div.stButton > button[kind="primary"]:hover {{
+    div.stButton > button[kind="primary"]:hover,
+    div.stButton > button[data-testid="stBaseButton-primary"]:hover {{
         transform: translateY(-4px) scale(1.04) !important;
         box-shadow:
             0 18px 28px -5px {warna_primary}BB,
             0 10px 18px rgba(0, 0, 0, 0.28) !important;
     }}
-    div.stButton > button[kind="primary"]:active {{
+    div.stButton > button[kind="primary"]:active,
+    div.stButton > button[data-testid="stBaseButton-primary"]:active {{
         transform: translateY(3px) scale(0.97) !important;
         border-bottom-width: 1px !important;
     }}
-    div.stButton > button[kind="primary"] * {{
+    div.stButton > button[kind="primary"] *,
+    div.stButton > button[data-testid="stBaseButton-primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder (+ Tambah, Batal, Hapus) -> Berubah Warna Jadi Seperti "Bayar" + Efek Pop-It */
-    div.stButton > button[kind="secondary"] {{
+    /* Semua Tombol Sekunder (+ Tambah, Batal, Hapus 🗑️, +, -, Reset) -> Berubah Warna Seperti "Bayar" + Pop-It */
+    div.stButton > button[kind="secondary"],
+    div.stButton > button[data-testid="stBaseButton-secondary"],
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]) {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1.5px solid {warna_border} !important;
         border-bottom: 4px solid {warna_border} !important;
@@ -347,21 +353,27 @@ st.markdown(
             0 3px 6px rgba(0, 0, 0, 0.08);
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-    div.stButton > button[kind="secondary"]:hover {{
+    div.stButton > button[kind="secondary"]:hover:not(:disabled),
+    div.stButton > button[data-testid="stBaseButton-secondary"]:hover:not(:disabled),
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):hover:not(:disabled) {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        transform: translateY(-4px) scale(1.05) !important;
+        transform: translateY(-4px) scale(1.06) !important;
         box-shadow:
-            0 16px 26px -5px {warna_primary}99,
+            0 16px 26px -5px {warna_primary}AA,
             0 8px 15px rgba(0, 0, 0, 0.24) !important;
     }}
-    div.stButton > button[kind="secondary"]:hover * {{
+    div.stButton > button[kind="secondary"]:hover:not(:disabled) *,
+    div.stButton > button[data-testid="stBaseButton-secondary"]:hover:not(:disabled) *,
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):hover:not(:disabled) * {{
         color: #FFFFFF !important;
     }}
-    div.stButton > button[kind="secondary"]:active {{
-        transform: translateY(3px) scale(0.96) !important;
+    div.stButton > button[kind="secondary"]:active:not(:disabled),
+    div.stButton > button[data-testid="stBaseButton-secondary"]:active:not(:disabled),
+    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):active:not(:disabled) {{
+        transform: translateY(3px) scale(0.95) !important;
         border-bottom-width: 1px !important;
     }}
 
