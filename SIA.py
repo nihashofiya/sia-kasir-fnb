@@ -1,7 +1,9 @@
+import io
 import sqlite3
 from datetime import datetime
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # --- KONFIGURASI HALAMAN ---
 st.set_page_config(
@@ -15,7 +17,6 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    /* Warna Latar Belakang Utama & Sidebar */
     .stApp {
         background-color: #F4F6F9;
     }
@@ -23,18 +24,6 @@ st.markdown(
         background-color: #FFFFFF;
         border-right: 1px solid #E5E7EB;
     }
-    
-    /* Kartu Panel Putih */
-    .pos-card {
-        background-color: #FFFFFF;
-        padding: 18px;
-        border-radius: 12px;
-        border: 1px solid #E5E7EB;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        margin-bottom: 12px;
-    }
-
-    /* Kotak Total Harga Besar ala Nutapos */
     .total-display {
         background-color: #FFFFFF;
         border: 2px solid #E5E7EB;
@@ -46,8 +35,6 @@ st.markdown(
         color: #1F2937;
         margin-bottom: 15px;
     }
-
-    /* Kartu Produk di Katalog Kanan */
     .product-box {
         background-color: #FFFFFF;
         border: 1px solid #E5E7EB;
@@ -79,8 +66,6 @@ st.markdown(
         color: #6B7280;
         font-weight: 500;
     }
-
-    /* Tombol Utama Hijau */
     div.stButton > button[kind="primary"] {
         background-color: #28A745;
         border-color: #28A745;
@@ -130,24 +115,27 @@ conn.commit()
 
 # --- DATA KATALOG PRODUK FNB ---
 PRODUK_FNB = [
-    {"nama": "Burger", "harga": 20000, "kategori": "Makanan", "ikon": "🍔"},
-    {"nama": "Sandwich", "harga": 15000, "kategori": "Makanan", "ikon": "🥪"},
-    {"nama": "Nasi Ayam Geprek", "harga": 10000, "kategori": "Makanan", "ikon": "🍗"},
-    {"nama": "Mie Goreng", "harga": 8000, "kategori": "Makanan", "ikon": "🍜"},
-    {"nama": "French Fries", "harga": 10000, "kategori": "Snack", "ikon": "🍟"},
-    {"nama": "Croissant Butter", "harga": 20000, "kategori": "Snack", "ikon": "🥐"},
+    {"nama": "Black Burger", "harga": 40000, "kategori": "Makanan", "ikon": "🍔"},
+    {"nama": "Mexican Burger", "harga": 45000, "kategori": "Makanan", "ikon": "🌮"},
+    {"nama": "Ham Sandwich", "harga": 35000, "kategori": "Makanan", "ikon": "🥪"},
+    {"nama": "Nasi Ayam Geprek", "harga": 25000, "kategori": "Makanan", "ikon": "🍗"},
+    {"nama": "French Fries", "harga": 20000, "kategori": "Snack", "ikon": "🍟"},
+    {"nama": "Croissant Butter", "harga": 22000, "kategori": "Snack", "ikon": "🥐"},
     {"nama": "Kopi Susu Aren", "harga": 18000, "kategori": "Minuman", "ikon": "🧋"},
     {"nama": "Americano Ice", "harga": 15000, "kategori": "Minuman", "ikon": "☕"},
     {"nama": "Matcha Latte", "harga": 24000, "kategori": "Minuman", "ikon": "🍵"},
-    {"nama": "Fanta Strawberry", "harga": 10000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Strawberry", "harga": 12000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Orange", "harga": 12000, "kategori": "Minuman", "ikon": "🧃"},
     {"nama": "Es Teh Manis", "harga": 8000, "kategori": "Minuman", "ikon": "🧊"},
 ]
 
-# --- SESSION STATE KERANJANG BELANJA ---
+# --- SESSION STATE ---
 if "keranjang" not in st.session_state:
-    st.session_state.keranjang = {}  # Format: {"Nama Produk": qty}
+    st.session_state.keranjang = {}
+if "struk_terakhir" not in st.session_state:
+    st.session_state.struk_terakhir = None
 
-# --- SIDEBAR NAVIGASI ALA NUTAPOS ---
+# --- SIDEBAR NAVIGASI ---
 st.sidebar.markdown(
     "<h2 style='color:#28A745; margin-bottom:0;'>🟢 SIA-POS FnB</h2>"
     "<p style='color:#6B7280; font-size:12px;'>Sistem Informasi Akuntansi</p>",
@@ -181,14 +169,14 @@ if st.sidebar.button("🗑️ Reset Transaksi", disabled=not konfirmasi_reset, u
     c.execute("DELETE FROM sqlite_sequence WHERE name='penjualan' OR name='kas_kecil'")
     conn.commit()
     st.session_state.keranjang = {}
+    st.session_state.struk_terakhir = None
     st.sidebar.success("Data berhasil di-reset!")
     st.rerun()
 
 # ==========================================================
-# HALAMAN 1: KASIR POS (TAMPILAN 2 KOLOM ALA NUTAPOS)
+# HALAMAN 1: KASIR POS & CETAK STRUK
 # ==========================================================
 if menu_aktif == "🛒 Kasir (POS)":
-    # Header Bar Atas
     st.markdown(
         """
         <div style="background:#FFFFFF; padding:10px 18px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
@@ -203,7 +191,6 @@ if menu_aktif == "🛒 Kasir (POS)":
 
     # --- KOLOM TENGAH: STRUK & KERANJANG PESANAN ---
     with kolom_struk:
-        # Hitung Total Keranjang
         subtotal_keranjang = 0
         for nama_item, qty in st.session_state.keranjang.items():
             harga_item = next(p["harga"] for p in PRODUK_FNB if p["nama"] == nama_item)
@@ -212,7 +199,6 @@ if menu_aktif == "🛒 Kasir (POS)":
         pajak_pb1 = subtotal_keranjang * 0.10
         total_akhir = subtotal_keranjang + pajak_pb1
 
-        # Kotak Total Harga Besar
         st.markdown(
             f'<div class="total-display">Rp {total_akhir:,.0f}</div>',
             unsafe_allow_html=True,
@@ -223,7 +209,7 @@ if menu_aktif == "🛒 Kasir (POS)":
             st.divider()
 
             if not st.session_state.keranjang:
-                st.info("Belum ada menu dipilih. Klik tombol **+ Tambah** pada katalog di sebelah kanan.")
+                st.info("Belum ada menu dipilih. Klik tombol **+ Tambah** di sebelah kanan.")
             else:
                 item_dihapus = None
                 for nama_item, qty in list(st.session_state.keranjang.items()):
@@ -249,7 +235,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                     st.rerun()
 
             st.divider()
-            # Rincian Subtotal & Pajak PB1
             r1, r2 = st.columns(2)
             r1.write("Total sebelum pajak")
             r2.markdown(f"<div style='text-align:right;'>Rp {subtotal_keranjang:,.0f}</div>", unsafe_allow_html=True)
@@ -274,6 +259,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                 waktu_skrg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 no_faktur = f"INV-{datetime.now().strftime('%H%M%S')}"
 
+                detail_struk = []
                 for nama_item, qty in st.session_state.keranjang.items():
                     harga_satuan = next(p["harga"] for p in PRODUK_FNB if p["nama"] == nama_item)
                     sub = harga_satuan * qty
@@ -284,10 +270,108 @@ if menu_aktif == "🛒 Kasir (POS)":
                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                         (no_faktur, waktu_skrg, nama_item, qty, sub, pjk, tot, metode_bayar),
                     )
+                    detail_struk.append({
+                        "nama": nama_item,
+                        "qty": qty,
+                        "harga": harga_satuan,
+                        "subtotal": sub,
+                    })
                 conn.commit()
+
+                # Simpan data struk terakhir untuk dicetak
+                st.session_state.struk_terakhir = {
+                    "no_faktur": no_faktur,
+                    "waktu": waktu_skrg,
+                    "items": detail_struk,
+                    "subtotal": subtotal_keranjang,
+                    "pajak": pajak_pb1,
+                    "total": total_akhir,
+                    "metode": metode_bayar,
+                }
                 st.session_state.keranjang = {}
-                st.toast(f"✅ Pembayaran {no_faktur} (Rp {total_akhir:,.0f}) berhasil dicatat!", icon="🎉")
+                st.toast(f"✅ Pembayaran {no_faktur} berhasil dicatat!", icon="🎉")
                 st.rerun()
+
+        # --- AREA CETAK STRUK TRANSAKSI TERAKHIR ---
+        if st.session_state.struk_terakhir:
+            s = st.session_state.struk_terakhir
+            with st.container(border=True):
+                st.markdown("**🖨️ Struk Transaksi Terakhir (Siap Cetak)**")
+
+                baris_item_html = ""
+                baris_item_txt = ""
+                for it in s["items"]:
+                    baris_item_html += f"""
+                    <tr>
+                        <td style="padding:2px 0;">{it['nama']}<br><small>{it['qty']} x Rp {it['harga']:,.0f}</small></td>
+                        <td style="text-align:right; vertical-align:bottom;">Rp {it['subtotal']:,.0f}</td>
+                    </tr>
+                    """
+                    baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
+
+                # Komponen HTML dengan Tombol Print Browser
+                html_struk = f"""
+                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:6px; color:#111827; font-size:12px;">
+                    <div style="text-align:center; font-weight:bold; font-size:14px;">KEDAI KOPI & RESTO MAHASISWA</div>
+                    <div style="text-align:center; font-size:11px; margin-bottom:8px;">Sistem Informasi Akuntansi FnB</div>
+                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <div>No. Faktur : {s['no_faktur']}</div>
+                    <div>Waktu      : {s['waktu']}</div>
+                    <div>Pembayaran : {s['metode']}</div>
+                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                        {baris_item_html}
+                    </table>
+                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <table style="width:100%; font-size:12px;">
+                        <tr><td>Subtotal (DPP)</td><td style="text-align:right;">Rp {s['subtotal']:,.0f}</td></tr>
+                        <tr><td>Pajak PB1 (10%)</td><td style="text-align:right;">Rp {s['pajak']:,.0f}</td></tr>
+                        <tr style="font-weight:bold; font-size:13px;"><td>TOTAL BAYAR</td><td style="text-align:right;">Rp {s['total']:,.0f}</td></tr>
+                    </table>
+                    <div style="border-top:1px dashed #9CA3AF; margin:8px 0;"></div>
+                    <div style="text-align:center; font-size:11px;">Terima Kasih Atas Kunjungan Anda!</div>
+                </div>
+                <button onclick="printStruk()" style="margin-top:8px; width:100%; background:#2563EB; color:white; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                    🖨️ Cetak Struk / Simpan PDF
+                </button>
+                <script>
+                function printStruk() {{
+                    var isi = document.getElementById('area-struk').innerHTML;
+                    var win = window.open('', '', 'height=600,width=400');
+                    win.document.write('<html><head><title>Struk {s['no_faktur']}</title></head><body>');
+                    win.document.write(isi);
+                    win.document.write('</body></html>');
+                    win.document.close();
+                    win.focus();
+                    win.print();
+                }}
+                </script>
+                """
+                components.html(html_struk, height=340, scrolling=True)
+
+                # Tombol Download Struk Format TXT
+                teks_struk = (
+                    f"KEDAI KOPI & RESTO MAHASISWA\n"
+                    f"==============================\n"
+                    f"No. Faktur : {s['no_faktur']}\n"
+                    f"Waktu      : {s['waktu']}\n"
+                    f"Metode     : {s['metode']}\n"
+                    f"------------------------------\n"
+                    f"{baris_item_txt}"
+                    f"------------------------------\n"
+                    f"Subtotal   : Rp {s['subtotal']:,.0f}\n"
+                    f"PB1 (10%)  : Rp {s['pajak']:,.0f}\n"
+                    f"TOTAL      : Rp {s['total']:,.0f}\n"
+                    f"==============================\n"
+                    f"Terima Kasih!\n"
+                )
+                st.download_button(
+                    label="📄 Unduh File Struk (.txt)",
+                    data=teks_struk,
+                    file_name=f"Struk_{s['no_faktur']}.txt",
+                    mime="text/plain",
+                    use_container_width=True,
+                )
 
     # --- KOLOM KANAN: KATALOG MENU GRID ---
     with kolom_katalog:
@@ -300,7 +384,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                 label_visibility="collapsed",
             )
 
-            # Filter Produk
             produk_tampil = [
                 p for p in PRODUK_FNB
                 if (kategori_pilih == "Semua" or p["kategori"] == kategori_pilih)
@@ -308,7 +391,6 @@ if menu_aktif == "🛒 Kasir (POS)":
             ]
 
             st.write("")
-            # Render Grid 4 Kolom ala Nutapos
             cols_per_row = 4
             for i in range(0, len(produk_tampil), cols_per_row):
                 row_cols = st.columns(cols_per_row)
@@ -373,7 +455,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
                     st.warning("Lengkapi keterangan dan nama penanggung jawab.")
 
 # ==========================================================
-# HALAMAN 3: LAPORAN KAS & JURNAL UMUM
+# HALAMAN 3: LAPORAN KAS & JURNAL UMUM (+ EXPORT EXCEL)
 # ==========================================================
 elif menu_aktif == "📊 Laporan Kas & Jurnal":
     st.subheader("📊 Laporan Arus Kas & Jurnal Umum Otomatis")
@@ -392,73 +474,93 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
     c3.metric("Dana Kas Kecil Masuk", f"Rp {kk_masuk:,.0f}")
     c4.metric("Sisa Saldo Kas Kecil", f"Rp {kk_masuk - kk_keluar:,.0f}")
 
+    # --- MENYIAPKAN DATA BUKU KAS ---
+    mutasi_kas = [
+        {
+            "Waktu": "Awal Shift",
+            "No. Bukti": "OPEN-00",
+            "Pos Kas": "Kas Laci Kasir",
+            "Keterangan": "Saldo Awal Modal Kasir",
+            "Pemasukan (Debit)": saldo_awal_kas,
+            "Pengeluaran (Kredit)": 0,
+        }
+    ]
+    for _, row in df_penjualan.iterrows():
+        mutasi_kas.append(
+            {
+                "Waktu": row["waktu"],
+                "No. Bukti": row["no_faktur"],
+                "Pos Kas": "Kas Laci Kasir" if row["metode"] == "Cash" else "Bank / QRIS",
+                "Keterangan": f"Penjualan {row['item']} ({row['jumlah']}x)",
+                "Pemasukan (Debit)": row["total_harga"],
+                "Pengeluaran (Kredit)": 0,
+            }
+        )
+    for _, row in df_kas_kecil.iterrows():
+        is_masuk = row["jenis"] == "Masuk"
+        mutasi_kas.append(
+            {
+                "Waktu": row["waktu"],
+                "No. Bukti": f"PC-{row['id']:03d}",
+                "Pos Kas": "Kas Kecil",
+                "Keterangan": f"[{row['jenis'].upper()}] {row['keterangan']} ({row['penanggung_jawab']})",
+                "Pemasukan (Debit)": row["jumlah"] if is_masuk else 0,
+                "Pengeluaran (Kredit)": 0 if is_masuk else row["jumlah"],
+            }
+        )
+
+    df_kas = pd.DataFrame(mutasi_kas)
+    df_kas["Saldo Kumulatif"] = (df_kas["Pemasukan (Debit)"] - df_kas["Pengeluaran (Kredit)"]).cumsum()
+
+    # --- MENYIAPKAN DATA JURNAL UMUM ---
+    jurnal = []
+    for _, row in df_penjualan.iterrows():
+        akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
+        jurnal.extend([
+            {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
+            {"Waktu": "", "Ref": "", "Akun": f"    Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
+            {"Waktu": "", "Ref": "", "Akun": "    Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
+        ])
+    for _, row in df_kas_kecil.iterrows():
+        if row["jenis"] == "Masuk":
+            jurnal.extend([
+                {"Waktu": row["waktu"], "Ref": f"PC-IN-{row['id']:03d}", "Akun": f"Kas Kecil ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
+                {"Waktu": "", "Ref": "", "Akun": f"    {row['akun_lawan']}", "Debit": 0, "Kredit": row["jumlah"]},
+            ])
+        else:
+            jurnal.extend([
+                {"Waktu": row["waktu"], "Ref": f"PC-OUT-{row['id']:03d}", "Akun": f"{row['akun_lawan']} ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
+                {"Waktu": "", "Ref": "", "Akun": "    Kas Kecil", "Debit": 0, "Kredit": row["jumlah"]},
+            ])
+
+    df_j = pd.DataFrame(jurnal) if jurnal else pd.DataFrame(columns=["Waktu", "Ref", "Akun", "Debit", "Kredit"])
+
+    # --- TOMBOL EXPORT EXCEL (.XLSX) MULTI-SHEET ---
+    buffer_excel = io.BytesIO()
+    with pd.ExcelWriter(buffer_excel, engine="openpyxl") as writer:
+        df_kas.to_excel(writer, sheet_name="Buku_Kas", index=False)
+        df_j.to_excel(writer, sheet_name="Jurnal_Umum", index=False)
+        df_penjualan.to_excel(writer, sheet_name="Rincian_Penjualan", index=False)
+        df_kas_kecil.to_excel(writer, sheet_name="Rincian_Kas_Kecil", index=False)
+
+    st.download_button(
+        label="📥 Download Laporan Lengkap Format Excel (.xlsx)",
+        data=buffer_excel.getvalue(),
+        file_name=f"Laporan_SIA_FnB_{datetime.now().strftime('%Y%m%d')}.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        type="primary",
+    )
+
     tab1, tab2 = st.tabs(["📒 Laporan Mutasi Kas (Buku Kas)", "📖 Jurnal Umum Otomatis"])
 
     with tab1:
-        mutasi_kas = [
-            {
-                "Waktu": "Awal Shift",
-                "No. Bukti": "OPEN-00",
-                "Pos Kas": "Kas Laci Kasir",
-                "Keterangan": "Saldo Awal Modal Kasir",
-                "Pemasukan (Debit)": saldo_awal_kas,
-                "Pengeluaran (Kredit)": 0,
-            }
-        ]
-        for _, row in df_penjualan.iterrows():
-            mutasi_kas.append(
-                {
-                    "Waktu": row["waktu"],
-                    "No. Bukti": row["no_faktur"],
-                    "Pos Kas": "Kas Laci Kasir" if row["metode"] == "Cash" else "Bank / QRIS",
-                    "Keterangan": f"Penjualan {row['item']} ({row['jumlah']}x)",
-                    "Pemasukan (Debit)": row["total_harga"],
-                    "Pengeluaran (Kredit)": 0,
-                }
-            )
-        for _, row in df_kas_kecil.iterrows():
-            is_masuk = row["jenis"] == "Masuk"
-            mutasi_kas.append(
-                {
-                    "Waktu": row["waktu"],
-                    "No. Bukti": f"PC-{row['id']:03d}",
-                    "Pos Kas": "Kas Kecil",
-                    "Keterangan": f"[{row['jenis'].upper()}] {row['keterangan']} ({row['penanggung_jawab']})",
-                    "Pemasukan (Debit)": row["jumlah"] if is_masuk else 0,
-                    "Pengeluaran (Kredit)": 0 if is_masuk else row["jumlah"],
-                }
-            )
-
-        df_kas = pd.DataFrame(mutasi_kas)
-        df_kas["Saldo Kumulatif"] = (df_kas["Pemasukan (Debit)"] - df_kas["Pengeluaran (Kredit)"]).cumsum()
         df_tampil = df_kas.copy()
         for col in ["Pemasukan (Debit)", "Pengeluaran (Kredit)", "Saldo Kumulatif"]:
             df_tampil[col] = df_tampil[col].apply(lambda x: f"Rp {x:,.0f}")
         st.dataframe(df_tampil, use_container_width=True, hide_index=True)
 
     with tab2:
-        jurnal = []
-        for _, row in df_penjualan.iterrows():
-            akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
-            jurnal.extend([
-                {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
-                {"Waktu": "", "Ref": "", "Akun": f"    Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
-                {"Waktu": "", "Ref": "", "Akun": "    Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
-            ])
-        for _, row in df_kas_kecil.iterrows():
-            if row["jenis"] == "Masuk":
-                jurnal.extend([
-                    {"Waktu": row["waktu"], "Ref": f"PC-IN-{row['id']:03d}", "Akun": f"Kas Kecil ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
-                    {"Waktu": "", "Ref": "", "Akun": f"    {row['akun_lawan']}", "Debit": 0, "Kredit": row["jumlah"]},
-                ])
-            else:
-                jurnal.extend([
-                    {"Waktu": row["waktu"], "Ref": f"PC-OUT-{row['id']:03d}", "Akun": f"{row['akun_lawan']} ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
-                    {"Waktu": "", "Ref": "", "Akun": "    Kas Kecil", "Debit": 0, "Kredit": row["jumlah"]},
-                ])
-
-        if jurnal:
-            df_j = pd.DataFrame(jurnal)
+        if not df_j.empty:
             tot_d, tot_k = df_j["Debit"].sum(), df_j["Kredit"].sum()
             df_j_tampil = df_j.copy()
             df_j_tampil["Debit"] = df_j_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
