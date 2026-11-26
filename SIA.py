@@ -70,7 +70,7 @@ if "struk_terakhir" not in st.session_state:
 # ==========================================================
 st.sidebar.markdown(
     "<h2 id='brand-title' style='margin-bottom:0; text-shadow: 2px 3px 6px rgba(0,0,0,0.14);'>🟢 SIA-POS FnB</h2>"
-    "<p style='font-size:12px; opacity:0.8;'>Sistem Informasi Akuntansi</p>",
+    "<p style='font-size:12px; opacity:0.85;'>Sistem Informasi Akuntansi</p>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
@@ -113,7 +113,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
             "bg": "#E6ECF5",
             "card": "#FFFFFF",
             "text": "#1F2937",
-            "border": "#CBD5E1",
+            "border": "#64748B",
         },
         "Warm Coffee Shop (Cokelat & Krem)": {
             "primary": "#8B5A2B",
@@ -121,7 +121,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
             "bg": "#EDE5DB",
             "card": "#FFFDF9",
             "text": "#3E2723",
-            "border": "#D5C3AE",
+            "border": "#795548",
         },
         "Biru Profesional": {
             "primary": "#2563EB",
@@ -129,7 +129,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
             "bg": "#E3EAF4",
             "card": "#FFFFFF",
             "text": "#0F172A",
-            "border": "#C1CFE0",
+            "border": "#475569",
         },
         "Dark Mode Elegan": {
             "primary": "#10B981",
@@ -137,17 +137,17 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
             "bg": "#0B1120",
             "card": "#1E293B",
             "text": "#F8FAFC",
-            "border": "#334155",
+            "border": "#94A3B8",
         },
     }
 
     if preset_tema == "Custom Warna Sendiri...":
         warna_primary = st.color_picker("Warna Aksen / Tombol Utama", "#28A745")
-        warna_primary_dark = "#1A1A1A"
+        warna_primary_dark = "#111827"
         warna_bg = st.color_picker("Warna Latar Belakang", "#E6ECF5")
         warna_card = st.color_picker("Warna Kartu & Sidebar", "#FFFFFF")
         warna_text = st.color_picker("Warna Teks", "#1F2937")
-        warna_border = "#C8D1DF"
+        warna_border = st.color_picker("Warna Garis Pembatas & Bingkai", "#475569")
     else:
         pilihan = PRESETS[preset_tema]
         warna_primary = pilihan["primary"]
@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + GARIS TABEL HITAM TEGAS ---
+# --- TERAPKAN CSS BERDIMENSI 3D + GARIS TEGAS DI SEMUA MENU ---
 st.markdown(
     f"""
     <style>
@@ -170,20 +170,29 @@ st.markdown(
         color: {warna_text};
     }}
 
-    /* Sidebar Berdimensi dengan Deep Drop Shadow */
+    /* Garis Pembatas Horizontal (st.divider & hr) agar Tegas & Tidak Samar */
+    hr, [data-testid="stMarkdownContainer"] hr {{
+        border: none !important;
+        border-top: 2px solid {warna_border} !important;
+        opacity: 0.85 !important;
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }}
+
+    /* Sidebar Berdimensi dengan Garis Tegas */
     section[data-testid="stSidebar"] {{
         background-color: {warna_card};
-        border-right: 1px solid {warna_border};
+        border-right: 2px solid {warna_border} !important;
         box-shadow: 8px 0 28px rgba(0, 0, 0, 0.12), 2px 0 8px rgba(0, 0, 0, 0.06);
     }}
     #brand-title {{
         color: {warna_primary} !important;
     }}
 
-    /* Container Berbingkai (Kartu Panel 3D Melayang Tinggi) */
+    /* Container Berbingkai (Kartu Panel 3D Melayang Tinggi dengan Garis Tegas) */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: {warna_card};
-        border: 1px solid {warna_border} !important;
+        border: 2px solid {warna_border} !important;
         border-bottom: 5px solid {warna_border} !important;
         border-radius: 16px;
         box-shadow:
@@ -193,48 +202,55 @@ st.markdown(
         transition: all 0.25s ease;
     }}
 
-    /* TABEL JURNAL DENGAN GARIS HITAM TEGAS & BERSIH */
-    .jurnal-table {{
-        width: 100%;
-        border-collapse: collapse;
-        background-color: {warna_card};
-        border: 2px solid #111827;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.14);
-        font-size: 14px;
-        margin-bottom: 14px;
+    /* Garis Kotak Input (Text Input, Number Input, Selectbox) */
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="select"] > div {{
+        border: 1.5px solid {warna_border} !important;
+        border-radius: 10px !important;
+        background-color: {warna_card} !important;
     }}
-    .jurnal-table th {{
-        background-color: {warna_primary};
-        color: #FFFFFF !important;
-        font-weight: 700;
-        text-align: left;
-        padding: 11px 14px;
-        border: 1.5px solid #111827;
+    div[data-baseweb="input"] > div:focus-within,
+    div[data-baseweb="select"] > div:focus-within {{
+        border-color: {warna_primary} !important;
+        box-shadow: 0 0 0 2px {warna_primary}44 !important;
     }}
-    .jurnal-table td {{
-        padding: 9px 14px;
-        border: 1px solid #111827;
+
+    /* Garis Tab Navigasi di Halaman Laporan */
+    button[data-baseweb="tab"] {{
+        border-bottom: 2px solid {warna_border} !important;
+        font-weight: 700 !important;
+    }}
+    button[data-baseweb="tab"][aria-selected="true"] {{
+        border-bottom: 4px solid {warna_primary} !important;
+        color: {warna_primary} !important;
+    }}
+
+    /* Garis Tabel Jurnal & Laporan (st.table & st.dataframe) */
+    div[data-testid="stTable"] table {{
+        border: 2px solid {warna_border} !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        background-color: {warna_card} !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+    }}
+    div[data-testid="stTable"] th {{
+        background-color: {warna_bg} !important;
         color: {warna_text} !important;
-        background-color: {warna_card};
+        border: 1.5px solid {warna_border} !important;
+        font-weight: 800 !important;
+        padding: 10px 12px !important;
     }}
-    .jurnal-table tr.baris-kredit td {{
-        background-color: {warna_bg}55;
-    }}
-    .jurnal-table td.angka {{
-        text-align: right;
-        font-family: 'Courier New', monospace;
-        font-weight: 600;
-    }}
-    .jurnal-table th.angka {{
-        text-align: right;
+    div[data-testid="stTable"] td {{
+        border: 1.5px solid {warna_border} !important;
+        padding: 9px 12px !important;
+        color: {warna_text} !important;
     }}
 
     /* Kotak Total Harga Besar */
     .total-display {{
         background: linear-gradient(145deg, {warna_card}, {warna_bg});
-        border: 2px solid {warna_primary};
+        border: 2.5px solid {warna_primary};
         border-bottom: 6px solid {warna_primary};
         border-radius: 16px;
         padding: 20px;
@@ -256,8 +272,8 @@ st.markdown(
         background: {warna_card};
         padding: 13px 22px;
         border-radius: 14px;
-        border: 1px solid {warna_border};
-        border-bottom: 4px solid {warna_border};
+        border: 2px solid {warna_border};
+        border-bottom: 5px solid {warna_border};
         margin-bottom: 18px;
         display: flex;
         justify-content: space-between;
@@ -270,7 +286,7 @@ st.markdown(
     /* Kartu Produk di Katalog Kanan */
     .product-box {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
-        border: 1px solid {warna_border};
+        border: 2px solid {warna_border};
         border-bottom: 5px solid {warna_border};
         border-radius: 15px;
         padding: 14px 8px;
@@ -312,14 +328,14 @@ st.markdown(
     }}
     .product-price {{
         font-size: 12px;
-        opacity: 0.85;
+        opacity: 0.9;
         font-weight: 600;
     }}
 
     /* Tombol Utama 3D Tactile Push-Button */
     div.stButton > button[kind="primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
-        border: 1px solid {warna_primary_dark} !important;
+        border: 1.5px solid {warna_primary_dark} !important;
         border-bottom: 5px solid #111827 !important;
         color: #FFFFFF !important;
         font-weight: 700;
@@ -349,7 +365,7 @@ st.markdown(
     /* Tombol Sekunder (+ Tambah, Batal, Hapus) */
     div.stButton > button[kind="secondary"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
-        border: 1px solid {warna_border} !important;
+        border: 1.5px solid {warna_border} !important;
         border-bottom: 4px solid {warna_border} !important;
         color: {warna_text} !important;
         font-weight: 600;
@@ -376,8 +392,9 @@ st.markdown(
 
     /* Tombol Download Excel & Struk 3D */
     div.stDownloadButton > button {{
+        border: 1.5px solid {warna_border} !important;
         border-radius: 12px !important;
-        border-bottom: 5px solid rgba(0, 0, 0, 0.3) !important;
+        border-bottom: 5px solid rgba(0, 0, 0, 0.35) !important;
         box-shadow:
             0 12px 22px -5px rgba(0, 0, 0, 0.20),
             0 4px 8px rgba(0, 0, 0, 0.10) !important;
@@ -398,7 +415,7 @@ st.markdown(
     /* Kartu Metrik Keuangan 3D */
     div[data-testid="stMetric"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
-        border: 1px solid {warna_border};
+        border: 2px solid {warna_border};
         border-bottom: 5px solid {warna_primary};
         border-radius: 14px;
         padding: 16px 18px;
@@ -506,7 +523,7 @@ if menu_aktif == "🛒 Kasir (POS)":
             r5.markdown("**Total Harga**")
             r6.markdown(f"<div style='text-align:right;'><b>Rp {total_akhir:,.0f}</b></div>", unsafe_allow_html=True)
 
-            st.write("")
+            st.divider()
             metode_bayar = st.radio("Metode Pembayaran:", ["Cash", "QRIS"], horizontal=True)
 
             btn_kosong, btn_bayar = st.columns([1, 2])
@@ -555,6 +572,7 @@ if menu_aktif == "🛒 Kasir (POS)":
             s = st.session_state.struk_terakhir
             with st.container(border=True):
                 st.markdown("**🖨️ Struk Transaksi Terakhir (Siap Cetak)**")
+                st.divider()
 
                 baris_item_html = ""
                 baris_item_txt = ""
@@ -568,24 +586,24 @@ if menu_aktif == "🛒 Kasir (POS)":
                     baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
 
                 html_struk = f"""
-                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 10px 20px rgba(0,0,0,0.12);">
+                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:2px dashed #4B5563; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 10px 20px rgba(0,0,0,0.12);">
                     <div style="text-align:center; font-weight:bold; font-size:14px; color:#111827;">KEDAI KOPI & RESTO MAHASISWA</div>
                     <div style="text-align:center; font-size:11px; margin-bottom:8px; color:#374151;">Sistem Informasi Akuntansi FnB</div>
-                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <div style="border-top:1.5px dashed #4B5563; margin:6px 0;"></div>
                     <div style="color:#111827;">No. Faktur : {s['no_faktur']}</div>
                     <div style="color:#111827;">Waktu      : {s['waktu']}</div>
                     <div style="color:#111827;">Pembayaran : {s['metode']}</div>
-                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <div style="border-top:1.5px dashed #4B5563; margin:6px 0;"></div>
                     <table style="width:100%; border-collapse:collapse; font-size:12px;">
                         {baris_item_html}
                     </table>
-                    <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
+                    <div style="border-top:1.5px dashed #4B5563; margin:6px 0;"></div>
                     <table style="width:100%; font-size:12px; color:#111827;">
                         <tr><td>Subtotal (DPP)</td><td style="text-align:right;">Rp {s['subtotal']:,.0f}</td></tr>
                         <tr><td>Pajak PB1 (10%)</td><td style="text-align:right;">Rp {s['pajak']:,.0f}</td></tr>
                         <tr style="font-weight:bold; font-size:13px;"><td>TOTAL BAYAR</td><td style="text-align:right;">Rp {s['total']:,.0f}</td></tr>
                     </table>
-                    <div style="border-top:1px dashed #9CA3AF; margin:8px 0;"></div>
+                    <div style="border-top:1.5px dashed #4B5563; margin:8px 0;"></div>
                     <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
                 </div>
                 <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:none; border-bottom:4px solid rgba(0,0,0,0.35); padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 10px 18px -4px rgba(0,0,0,0.25);">
@@ -639,6 +657,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                 horizontal=True,
                 label_visibility="collapsed",
             )
+            st.divider()
 
             produk_tampil = [
                 p for p in PRODUK_FNB
@@ -646,7 +665,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                 and (cari_produk.lower() in p["nama"].lower())
             ]
 
-            st.write("")
             cols_per_row = 4
             for i in range(0, len(produk_tampil), cols_per_row):
                 row_cols = st.columns(cols_per_row)
@@ -675,12 +693,14 @@ if menu_aktif == "🛒 Kasir (POS)":
 # ==========================================================
 elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
     st.subheader("💸 Siklus Kas Kecil (Petty Cash Management)")
+    st.divider()
     with st.container(border=True):
         jenis_transaksi = st.radio(
             "Pilih Jenis Mutasi Kas Kecil:",
             ["Pengeluaran Kas Kecil (Keluar)", "Pengisian Dana Kas Kecil (Masuk)"],
             horizontal=True,
         )
+        st.divider()
 
         with st.form("form_kas_kecil", clear_on_submit=True):
             if "Masuk" in jenis_transaksi:
@@ -695,6 +715,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
 
             nominal = st.number_input("Nominal (Rp):", min_value=1000, step=5000)
             pj = st.text_input("Nama Penanggung Jawab:")
+            st.divider()
 
             if st.form_submit_button("Simpan Mutasi Kas Kecil", type="primary"):
                 if keterangan and pj:
@@ -715,6 +736,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
 # ==========================================================
 elif menu_aktif == "📊 Laporan Kas & Jurnal":
     st.subheader("📊 Laporan Arus Kas & Jurnal Akuntansi")
+    st.divider()
 
     df_penjualan = pd.read_sql_query("SELECT * FROM penjualan", conn)
     df_kas_kecil = pd.read_sql_query("SELECT * FROM kas_kecil", conn)
@@ -730,7 +752,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
     c3.metric("Dana Kas Kecil Masuk", f"Rp {kk_masuk:,.0f}")
     c4.metric("Sisa Saldo Kas Kecil", f"Rp {kk_masuk - kk_keluar:,.0f}")
 
-    st.write("")
+    st.divider()
 
     # --- MENYIAPKAN DATA BUKU KAS ---
     mutasi_kas = [
@@ -777,14 +799,15 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
     df_kas["Saldo Kumulatif"] = (df_kas["Pemasukan (Debit)"] - df_kas["Pengeluaran (Kredit)"]).cumsum()
     df_kas_excel = df_kas.drop(columns=["tipe_db", "id_db"])
 
-    # --- 1. JURNAL UMUM KHUSUS PENJUALAN ---
+    # --- 1. JURNAL UMUM KHUSUS PENJUALAN (MENGGUNAKAN SPASI NON-BREAKING AGAR RAPI) ---
+    indent = "\u00A0" * 6
     jurnal_umum_list = []
     for _, row in df_penjualan.iterrows():
         akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
         jurnal_umum_list.extend([
             {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
-            {"Waktu": "", "Ref": "", "Akun": f"    Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
-            {"Waktu": "", "Ref": "", "Akun": "    Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
+            {"Waktu": "", "Ref": "", "Akun": f"{indent}Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
+            {"Waktu": "", "Ref": "", "Akun": f"{indent}Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
         ])
     df_jurnal_umum = (
         pd.DataFrame(jurnal_umum_list)
@@ -809,7 +832,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                     "Waktu": "",
                     "Ref": "",
                     "PJ": "",
-                    "Akun": f"    {row['akun_lawan']}",
+                    "Akun": f"{indent}{row['akun_lawan']}",
                     "Debit": 0,
                     "Kredit": row["jumlah"],
                 },
@@ -828,7 +851,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                     "Waktu": "",
                     "Ref": "",
                     "PJ": "",
-                    "Akun": "    Kas Kecil",
+                    "Akun": f"{indent}Kas Kecil",
                     "Debit": 0,
                     "Kredit": row["jumlah"],
                 },
@@ -883,7 +906,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                 row_cols[6].markdown(f"**Rp {r['Saldo Kumulatif']:,.0f}**")
 
                 if r["tipe_db"] == "awal":
-                    row_cols[7].markdown("<div style='padding-top:6px; opacity:0.5;'>🔒</div>", unsafe_allow_html=True)
+                    row_cols[7].markdown("<div style='padding-top:6px; opacity:0.6;'>🔒</div>", unsafe_allow_html=True)
                 else:
                     if row_cols[7].button("🗑️", key=f"del_{r['tipe_db']}_{r['id_db']}", help="Batalkan / hapus transaksi ini"):
                         if r["tipe_db"] == "penjualan":
@@ -895,93 +918,31 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                         st.rerun()
 
                 if idx < len(df_kas) - 1:
-                    st.markdown("<hr style='margin: 4px 0; border-top: 1.5px solid #111827;'>", unsafe_allow_html=True)
+                    st.markdown(f"<hr style='margin: 6px 0; border-top: 1.5px solid {warna_border} !important;'>", unsafe_allow_html=True)
 
-    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN (GARIS HITAM TEGAS) ---
+    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
     with tab2:
         st.markdown("#### 📖 Jurnal Umum — Siklus Pendapatan (Penjualan)")
         if not df_jurnal_umum.empty:
             tot_d, tot_k = df_jurnal_umum["Debit"].sum(), df_jurnal_umum["Kredit"].sum()
-            baris_ju_html = ""
-            for _, r in df_jurnal_umum.iterrows():
-                is_kredit = r["Kredit"] > 0
-                kelas_baris = "baris-kredit" if is_kredit else ""
-                nama_akun_html = f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{r['Akun'].strip()}" if is_kredit else f"<b>{r['Akun']}</b>"
-                debit_str = f"Rp {r['Debit']:,.0f}" if r["Debit"] > 0 else "-"
-                kredit_str = f"Rp {r['Kredit']:,.0f}" if r["Kredit"] > 0 else "-"
-                baris_ju_html += f"""
-                <tr class="{kelas_baris}">
-                    <td>{r['Waktu']}</td>
-                    <td>{r['Ref']}</td>
-                    <td>{nama_akun_html}</td>
-                    <td class="angka">{debit_str}</td>
-                    <td class="angka">{kredit_str}</td>
-                </tr>
-                """
-
-            tabel_ju_html = f"""
-            <table class="jurnal-table">
-                <thead>
-                    <tr>
-                        <th>Waktu</th>
-                        <th>Ref</th>
-                        <th>Nama Akun</th>
-                        <th class="angka">Debit</th>
-                        <th class="angka">Kredit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {baris_ju_html}
-                </tbody>
-            </table>
-            """
-            st.markdown(tabel_ju_html, unsafe_allow_html=True)
+            df_ju_tampil = df_jurnal_umum.copy()
+            df_ju_tampil["Debit"] = df_ju_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_ju_tampil["Kredit"] = df_ju_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.table(df_ju_tampil)
             if tot_d == tot_k:
                 st.success(f"✅ JURNAL UMUM BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
         else:
             st.info("Belum ada transaksi penjualan yang tercatat pada Jurnal Umum.")
 
-    # --- TAB 3: JURNAL KAS KECIL TERPISAH (GARIS HITAM TEGAS) ---
+    # --- TAB 3: JURNAL KAS KECIL TERPISAH ---
     with tab3:
         st.markdown("#### 🧾 Jurnal Kas Kecil (*Petty Cash Journal*)")
         if not df_jurnal_kk.empty:
             tot_d_kk, tot_k_kk = df_jurnal_kk["Debit"].sum(), df_jurnal_kk["Kredit"].sum()
-            baris_jkk_html = ""
-            for _, r in df_jurnal_kk.iterrows():
-                is_kredit = r["Kredit"] > 0
-                kelas_baris = "baris-kredit" if is_kredit else ""
-                nama_akun_html = f"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{r['Akun'].strip()}" if is_kredit else f"<b>{r['Akun']}</b>"
-                debit_str = f"Rp {r['Debit']:,.0f}" if r["Debit"] > 0 else "-"
-                kredit_str = f"Rp {r['Kredit']:,.0f}" if r["Kredit"] > 0 else "-"
-                baris_jkk_html += f"""
-                <tr class="{kelas_baris}">
-                    <td>{r['Waktu']}</td>
-                    <td>{r['Ref']}</td>
-                    <td>{r['PJ']}</td>
-                    <td>{nama_akun_html}</td>
-                    <td class="angka">{debit_str}</td>
-                    <td class="angka">{kredit_str}</td>
-                </tr>
-                """
-
-            tabel_jkk_html = f"""
-            <table class="jurnal-table">
-                <thead>
-                    <tr>
-                        <th>Waktu</th>
-                        <th>Ref</th>
-                        <th>Penanggung Jawab</th>
-                        <th>Nama Akun</th>
-                        <th class="angka">Debit</th>
-                        <th class="angka">Kredit</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {baris_jkk_html}
-                </tbody>
-            </table>
-            """
-            st.markdown(tabel_jkk_html, unsafe_allow_html=True)
+            df_jkk_tampil = df_jurnal_kk.copy()
+            df_jkk_tampil["Debit"] = df_jkk_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_jkk_tampil["Kredit"] = df_jkk_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.table(df_jkk_tampil)
             if tot_d_kk == tot_k_kk:
                 st.success(f"✅ JURNAL KAS KECIL BALANCE: Total Debit (Rp {tot_d_kk:,.0f}) = Total Kredit (Rp {tot_k_kk:,.0f})")
         else:
