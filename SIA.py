@@ -13,75 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# --- CUSTOM CSS (DESAIN MODERN ALA NUTAPOS: PUTIH & HIJAU) ---
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #F4F6F9;
-    }
-    section[data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E5E7EB;
-    }
-    .total-display {
-        background-color: #FFFFFF;
-        border: 2px solid #E5E7EB;
-        border-radius: 10px;
-        padding: 16px;
-        text-align: center;
-        font-size: 32px;
-        font-weight: 800;
-        color: #1F2937;
-        margin-bottom: 15px;
-    }
-    .product-box {
-        background-color: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 10px;
-        padding: 12px 8px;
-        text-align: center;
-        margin-bottom: 8px;
-        transition: all 0.2s;
-    }
-    .product-box:hover {
-        border-color: #22C55E;
-        box-shadow: 0 4px 8px rgba(34, 197, 94, 0.12);
-    }
-    .product-emoji {
-        font-size: 36px;
-        margin-bottom: 4px;
-    }
-    .product-name {
-        font-weight: 600;
-        font-size: 13px;
-        color: #111827;
-        margin-bottom: 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .product-price {
-        font-size: 12px;
-        color: #6B7280;
-        font-weight: 500;
-    }
-    div.stButton > button[kind="primary"] {
-        background-color: #28A745;
-        border-color: #28A745;
-        color: white;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-    div.stButton > button[kind="primary"]:hover {
-        background-color: #218838;
-        border-color: #1E7E34;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
 # --- DATABASE SETUP ---
 conn = sqlite3.connect("sia_fnb_pos.db", check_same_thread=False)
 c = conn.cursor()
@@ -115,16 +46,17 @@ conn.commit()
 
 # --- DATA KATALOG PRODUK FNB ---
 PRODUK_FNB = [
-    {"nama": "Burger", "harga": 20000, "kategori": "Makanan", "ikon": "🍔"},
-    {"nama": "Sandwich", "harga": 15000, "kategori": "Makanan", "ikon": "🥪"},
-    {"nama": "Nasi Ayam Geprek", "harga": 10000, "kategori": "Makanan", "ikon": "🍗"},
-    {"nama": "Mie Goreng", "harga": 8000, "kategori": "Makanan", "ikon": "🍜"},
-    {"nama": "French Fries", "harga": 10000, "kategori": "Snack", "ikon": "🍟"},
-    {"nama": "Croissant Butter", "harga": 20000, "kategori": "Snack", "ikon": "🥐"},
+    {"nama": "Black Burger", "harga": 40000, "kategori": "Makanan", "ikon": "🍔"},
+    {"nama": "Mexican Burger", "harga": 45000, "kategori": "Makanan", "ikon": "🌮"},
+    {"nama": "Ham Sandwich", "harga": 35000, "kategori": "Makanan", "ikon": "🥪"},
+    {"nama": "Nasi Ayam Geprek", "harga": 25000, "kategori": "Makanan", "ikon": "🍗"},
+    {"nama": "French Fries", "harga": 20000, "kategori": "Snack", "ikon": "🍟"},
+    {"nama": "Croissant Butter", "harga": 22000, "kategori": "Snack", "ikon": "🥐"},
     {"nama": "Kopi Susu Aren", "harga": 18000, "kategori": "Minuman", "ikon": "🧋"},
     {"nama": "Americano Ice", "harga": 15000, "kategori": "Minuman", "ikon": "☕"},
     {"nama": "Matcha Latte", "harga": 24000, "kategori": "Minuman", "ikon": "🍵"},
-    {"nama": "Fanta Strawberry", "harga": 10000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Strawberry", "harga": 12000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Orange", "harga": 12000, "kategori": "Minuman", "ikon": "🧃"},
     {"nama": "Es Teh Manis", "harga": 8000, "kategori": "Minuman", "ikon": "🧊"},
 ]
 
@@ -134,10 +66,12 @@ if "keranjang" not in st.session_state:
 if "struk_terakhir" not in st.session_state:
     st.session_state.struk_terakhir = None
 
-# --- SIDEBAR NAVIGASI ---
+# ==========================================================
+# SIDEBAR: NAVIGASI & PENGATURAN TEMA WARNA MANDIRI
+# ==========================================================
 st.sidebar.markdown(
-    "<h2 style='color:#28A745; margin-bottom:0;'>🟢 SIA-POS FnB</h2>"
-    "<p style='color:#6B7280; font-size:12px;'>Sistem Informasi Akuntansi</p>",
+    "<h2 id='brand-title' style='margin-bottom:0;'>🟢 SIA-POS FnB</h2>"
+    "<p style='font-size:12px; opacity:0.8;'>Sistem Informasi Akuntansi</p>",
     unsafe_allow_html=True,
 )
 st.sidebar.markdown("---")
@@ -159,6 +93,163 @@ saldo_awal_kas = st.sidebar.number_input(
     step=50000,
 )
 
+# --- FITUR CUSTOM THEME / ADJUST WARNA SENDIRI ---
+st.sidebar.markdown("---")
+with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
+    preset_tema = st.selectbox(
+        "Pilih Preset Warna:",
+        [
+            "Hijau Modern (Default)",
+            "Warm Coffee Shop (Cokelat & Krem)",
+            "Biru Profesional",
+            "Dark Mode Elegan",
+            "Custom Warna Sendiri...",
+        ],
+    )
+
+    PRESETS = {
+        "Hijau Modern (Default)": {
+            "primary": "#28A745",
+            "bg": "#F4F6F9",
+            "card": "#FFFFFF",
+            "text": "#1F2937",
+            "border": "#E5E7EB",
+        },
+        "Warm Coffee Shop (Cokelat & Krem)": {
+            "primary": "#8B5A2B",
+            "bg": "#F7F3EE",
+            "card": "#FFFDF9",
+            "text": "#3E2723",
+            "border": "#E6D8C8",
+        },
+        "Biru Profesional": {
+            "primary": "#2563EB",
+            "bg": "#F1F5F9",
+            "card": "#FFFFFF",
+            "text": "#0F172A",
+            "border": "#CBD5E1",
+        },
+        "Dark Mode Elegan": {
+            "primary": "#10B981",
+            "bg": "#111827",
+            "card": "#1F2937",
+            "text": "#F9FAFB",
+            "border": "#374151",
+        },
+    }
+
+    if preset_tema == "Custom Warna Sendiri...":
+        warna_primary = st.color_picker("Warna Aksen / Tombol Utama", "#28A745")
+        warna_bg = st.color_picker("Warna Latar Belakang", "#F4F6F9")
+        warna_card = st.color_picker("Warna Kartu & Sidebar", "#FFFFFF")
+        warna_text = st.color_picker("Warna Teks", "#1F2937")
+        warna_border = "#D1D5DB"
+    else:
+        pilihan = PRESETS[preset_tema]
+        warna_primary = pilihan["primary"]
+        warna_bg = pilihan["bg"]
+        warna_card = pilihan["card"]
+        warna_text = pilihan["text"]
+        warna_border = pilihan["border"]
+
+# --- TERAPKAN CSS DINAMIS SESUAI WARNA PILIHAN ---
+st.markdown(
+    f"""
+    <style>
+    /* Latar Utama & Teks Global */
+    .stApp {{
+        background-color: {warna_bg};
+        color: {warna_text};
+    }}
+    .stApp p, .stApp span, .stApp label, .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp div {{
+        color: {warna_text};
+    }}
+
+    /* Sidebar */
+    section[data-testid="stSidebar"] {{
+        background-color: {warna_card};
+        border-right: 1px solid {warna_border};
+    }}
+    #brand-title {{
+        color: {warna_primary} !important;
+    }}
+
+    /* Container Berbingkai */
+    div[data-testid="stVerticalBlockBorderWrapper"] {{
+        background-color: {warna_card};
+        border-color: {warna_border} !important;
+        border-radius: 12px;
+    }}
+
+    /* Kotak Total Harga Besar */
+    .total-display {{
+        background-color: {warna_card};
+        border: 2px solid {warna_primary};
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: 800;
+        color: {warna_text} !important;
+        margin-bottom: 15px;
+    }}
+
+    /* Kartu Produk di Katalog Kanan */
+    .product-box {{
+        background-color: {warna_card};
+        border: 1px solid {warna_border};
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+    }}
+    .product-box:hover {{
+        border-color: {warna_primary};
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    }}
+    .product-emoji {{
+        font-size: 36px;
+        margin-bottom: 4px;
+    }}
+    .product-name {{
+        font-weight: 600;
+        font-size: 13px;
+        color: {warna_text} !important;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }}
+    .product-price {{
+        font-size: 12px;
+        opacity: 0.75;
+        font-weight: 500;
+    }}
+
+    /* Tombol Utama */
+    div.stButton > button[kind="primary"] {{
+        background-color: {warna_primary} !important;
+        border-color: {warna_primary} !important;
+        color: #FFFFFF !important;
+        font-weight: 600;
+        border-radius: 8px;
+    }}
+    div.stButton > button[kind="primary"] * {{
+        color: #FFFFFF !important;
+    }}
+    div.stButton > button[kind="secondary"] {{
+        background-color: {warna_card};
+        border-color: {warna_border};
+        color: {warna_text};
+        border-radius: 8px;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# --- PENGATURAN RESET DATA ---
 st.sidebar.markdown("---")
 st.sidebar.caption("⚙️ Pengaturan Data Simulasi")
 konfirmasi_reset = st.sidebar.checkbox("Konfirmasi hapus semua data")
@@ -177,10 +268,10 @@ if st.sidebar.button("🗑️ Reset Semua Transaksi", disabled=not konfirmasi_re
 # ==========================================================
 if menu_aktif == "🛒 Kasir (POS)":
     st.markdown(
-        """
-        <div style="background:#FFFFFF; padding:10px 18px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:#28A745; font-weight:700; font-size:14px;">● Online — Shift Pagi</span>
-            <span style="color:#374151; font-weight:600; font-size:14px;">🏪 Kedai Kopi & Resto Mahasiswa</span>
+        f"""
+        <div style="background:{warna_card}; padding:10px 18px; border-radius:10px; border:1px solid {warna_border}; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:{warna_primary} !important; font-weight:700; font-size:14px;">● Online — Shift Pagi</span>
+            <span style="font-weight:600; font-size:14px;">🏪 Kedai Kopi & Resto Mahasiswa</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -301,34 +392,34 @@ if menu_aktif == "🛒 Kasir (POS)":
                 for it in s["items"]:
                     baris_item_html += f"""
                     <tr>
-                        <td style="padding:2px 0;">{it['nama']}<br><small>{it['qty']} x Rp {it['harga']:,.0f}</small></td>
-                        <td style="text-align:right; vertical-align:bottom;">Rp {it['subtotal']:,.0f}</td>
+                        <td style="padding:2px 0; color:#111827;">{it['nama']}<br><small>{it['qty']} x Rp {it['harga']:,.0f}</small></td>
+                        <td style="text-align:right; vertical-align:bottom; color:#111827;">Rp {it['subtotal']:,.0f}</td>
                     </tr>
                     """
                     baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
 
                 html_struk = f"""
                 <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:6px; color:#111827; font-size:12px;">
-                    <div style="text-align:center; font-weight:bold; font-size:14px;">KEDAI KOPI & RESTO MAHASISWA</div>
-                    <div style="text-align:center; font-size:11px; margin-bottom:8px;">Sistem Informasi Akuntansi FnB</div>
+                    <div style="text-align:center; font-weight:bold; font-size:14px; color:#111827;">KEDAI KOPI & RESTO MAHASISWA</div>
+                    <div style="text-align:center; font-size:11px; margin-bottom:8px; color:#374151;">Sistem Informasi Akuntansi FnB</div>
                     <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
-                    <div>No. Faktur : {s['no_faktur']}</div>
-                    <div>Waktu      : {s['waktu']}</div>
-                    <div>Pembayaran : {s['metode']}</div>
+                    <div style="color:#111827;">No. Faktur : {s['no_faktur']}</div>
+                    <div style="color:#111827;">Waktu      : {s['waktu']}</div>
+                    <div style="color:#111827;">Pembayaran : {s['metode']}</div>
                     <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
                     <table style="width:100%; border-collapse:collapse; font-size:12px;">
                         {baris_item_html}
                     </table>
                     <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
-                    <table style="width:100%; font-size:12px;">
+                    <table style="width:100%; font-size:12px; color:#111827;">
                         <tr><td>Subtotal (DPP)</td><td style="text-align:right;">Rp {s['subtotal']:,.0f}</td></tr>
                         <tr><td>Pajak PB1 (10%)</td><td style="text-align:right;">Rp {s['pajak']:,.0f}</td></tr>
                         <tr style="font-weight:bold; font-size:13px;"><td>TOTAL BAYAR</td><td style="text-align:right;">Rp {s['total']:,.0f}</td></tr>
                     </table>
                     <div style="border-top:1px dashed #9CA3AF; margin:8px 0;"></div>
-                    <div style="text-align:center; font-size:11px;">Terima Kasih Atas Kunjungan Anda!</div>
+                    <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
                 </div>
-                <button onclick="printStruk()" style="margin-top:8px; width:100%; background:#2563EB; color:white; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                <button onclick="printStruk()" style="margin-top:8px; width:100%; background:{warna_primary}; color:white; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">
                     🖨️ Cetak Struk / Simpan PDF
                 </button>
                 <script>
@@ -470,7 +561,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
     c3.metric("Dana Kas Kecil Masuk", f"Rp {kk_masuk:,.0f}")
     c4.metric("Sisa Saldo Kas Kecil", f"Rp {kk_masuk - kk_keluar:,.0f}")
 
-    # --- MENYIAPKAN DATA BUKU KAS (DENGAN ID BARIS UNTUK TOMBOL HAPUS) ---
+    # --- MENYIAPKAN DATA BUKU KAS ---
     mutasi_kas = [
         {
             "tipe_db": "awal",
@@ -577,7 +668,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         else pd.DataFrame(columns=["Waktu", "Ref", "PJ", "Akun", "Debit", "Kredit"])
     )
 
-    # --- TOMBOL EXPORT EXCEL (.XLSX) DENGAN SHEET JURNAL TERPISAH ---
+    # --- TOMBOL EXPORT EXCEL (.XLSX) ---
     buffer_excel = io.BytesIO()
     with pd.ExcelWriter(buffer_excel, engine="openpyxl") as writer:
         df_kas_excel.to_excel(writer, sheet_name="Buku_Kas", index=False)
@@ -594,7 +685,6 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         type="primary",
     )
 
-    # --- 3 TAB LAPORAN TERPISAH ---
     tab1, tab2, tab3 = st.tabs([
         "📒 Laporan Mutasi Kas (Buku Kas)",
         "📖 Jurnal Umum (Penjualan)",
@@ -622,7 +712,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                 row_cols[6].markdown(f"**Rp {r['Saldo Kumulatif']:,.0f}**")
 
                 if r["tipe_db"] == "awal":
-                    row_cols[7].markdown("<div style='padding-top:6px; color:#9CA3AF;'>🔒</div>", unsafe_allow_html=True)
+                    row_cols[7].markdown("<div style='padding-top:6px; opacity:0.5;'>🔒</div>", unsafe_allow_html=True)
                 else:
                     if row_cols[7].button("🗑️", key=f"del_{r['tipe_db']}_{r['id_db']}", help="Batalkan / hapus transaksi ini"):
                         if r["tipe_db"] == "penjualan":
@@ -634,7 +724,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                         st.rerun()
 
                 if idx < len(df_kas) - 1:
-                    st.markdown("<hr style='margin: 4px 0; border-top: 1px solid #F3F4F6;'>", unsafe_allow_html=True)
+                    st.markdown(f"<hr style='margin: 4px 0; border-top: 1px solid {warna_border};'>", unsafe_allow_html=True)
 
     # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
     with tab2:
