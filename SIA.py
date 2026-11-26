@@ -1,0 +1,471 @@
+import sqlite3
+from datetime import datetime
+import pandas as pd
+import streamlit as st
+
+# --- KONFIGURASI HALAMAN ---
+st.set_page_config(
+    page_title="SIA POS - Sistem Kasir & Akuntansi FnB",
+    page_icon="🟢",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+# --- CUSTOM CSS (DESAIN MODERN ALA NUTAPOS: PUTIH & HIJAU) ---
+st.markdown(
+    """
+    <style>
+    /* Warna Latar Belakang Utama & Sidebar */
+    .stApp {
+        background-color: #F4F6F9;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #E5E7EB;
+    }
+    
+    /* Kartu Panel Putih */
+    .pos-card {
+        background-color: #FFFFFF;
+        padding: 18px;
+        border-radius: 12px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        margin-bottom: 12px;
+    }
+
+    /* Kotak Total Harga Besar ala Nutapos */
+    .total-display {
+        background-color: #FFFFFF;
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+        font-size: 32px;
+        font-weight: 800;
+        color: #1F2937;
+        margin-bottom: 15px;
+    }
+
+    /* Kartu Produk di Katalog Kanan */
+    .product-box {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 12px 8px;
+        text-align: center;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+    }
+    .product-box:hover {
+        border-color: #22C55E;
+        box-shadow: 0 4px 8px rgba(34, 197, 94, 0.12);
+    }
+    .product-emoji {
+        font-size: 36px;
+        margin-bottom: 4px;
+    }
+    .product-name {
+        font-weight: 600;
+        font-size: 13px;
+        color: #111827;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .product-price {
+        font-size: 12px;
+        color: #6B7280;
+        font-weight: 500;
+    }
+
+    /* Tombol Utama Hijau */
+    div.stButton > button[kind="primary"] {
+        background-color: #28A745;
+        border-color: #28A745;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+    }
+    div.stButton > button[kind="primary"]:hover {
+        background-color: #218838;
+        border-color: #1E7E34;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# --- DATABASE SETUP ---
+conn = sqlite3.connect("sia_fnb_pos.db", check_same_thread=False)
+c = conn.cursor()
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS penjualan (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    no_faktur TEXT,
+    waktu TEXT,
+    item TEXT,
+    jumlah INTEGER,
+    subtotal REAL,
+    pajak REAL,
+    total_harga REAL,
+    metode TEXT
+)
+""")
+
+c.execute("""
+CREATE TABLE IF NOT EXISTS kas_kecil (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    waktu TEXT,
+    jenis TEXT,
+    keterangan TEXT,
+    akun_lawan TEXT,
+    jumlah REAL,
+    penanggung_jawab TEXT
+)
+""")
+conn.commit()
+
+# --- DATA KATALOG PRODUK FNB ---
+PRODUK_FNB = [
+    {"nama": "Black Burger", "harga": 40000, "kategori": "Makanan", "ikon": "🍔"},
+    {"nama": "Mexican Burger", "harga": 45000, "kategori": "Makanan", "ikon": "🌮"},
+    {"nama": "Ham Sandwich", "harga": 35000, "kategori": "Makanan", "ikon": "🥪"},
+    {"nama": "Nasi Ayam Geprek", "harga": 25000, "kategori": "Makanan", "ikon": "🍗"},
+    {"nama": "French Fries", "harga": 20000, "kategori": "Snack", "ikon": "🍟"},
+    {"nama": "Croissant Butter", "harga": 22000, "kategori": "Snack", "ikon": "🥐"},
+    {"nama": "Kopi Susu Aren", "harga": 18000, "kategori": "Minuman", "ikon": "🧋"},
+    {"nama": "Americano Ice", "harga": 15000, "kategori": "Minuman", "ikon": "☕"},
+    {"nama": "Matcha Latte", "harga": 24000, "kategori": "Minuman", "ikon": "🍵"},
+    {"nama": "Fanta Strawberry", "harga": 12000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Orange", "harga": 12000, "kategori": "Minuman", "ikon": "🧃"},
+    {"nama": "Es Teh Manis", "harga": 8000, "kategori": "Minuman", "ikon": "🧊"},
+]
+
+# --- SESSION STATE KERANJANG BELANJA ---
+if "keranjang" not in st.session_state:
+    st.session_state.keranjang = {}  # Format: {"Nama Produk": qty}
+
+# --- SIDEBAR NAVIGASI ALA NUTAPOS ---
+st.sidebar.markdown(
+    "<h2 style='color:#28A745; margin-bottom:0;'>🟢 SIA-POS FnB</h2>"
+    "<p style='color:#6B7280; font-size:12px;'>Sistem Informasi Akuntansi</p>",
+    unsafe_allow_html=True,
+)
+st.sidebar.markdown("---")
+
+menu_aktif = st.sidebar.radio(
+    "MENU UTAMA",
+    [
+        "🛒 Kasir (POS)",
+        "💸 Kas Kecil (Masuk/Keluar)",
+        "📊 Laporan Kas & Jurnal",
+    ],
+)
+
+st.sidebar.markdown("---")
+saldo_awal_kas = st.sidebar.number_input(
+    "Saldo Awal Kas Laci (Rp):",
+    min_value=0,
+    value=500000,
+    step=50000,
+)
+
+st.sidebar.markdown("---")
+st.sidebar.caption("⚙️ Pengaturan Data Simulasi")
+konfirmasi_reset = st.sidebar.checkbox("Konfirmasi hapus semua data")
+if st.sidebar.button("🗑️ Reset Transaksi", disabled=not konfirmasi_reset, use_container_width=True):
+    c.execute("DELETE FROM penjualan")
+    c.execute("DELETE FROM kas_kecil")
+    c.execute("DELETE FROM sqlite_sequence WHERE name='penjualan' OR name='kas_kecil'")
+    conn.commit()
+    st.session_state.keranjang = {}
+    st.sidebar.success("Data berhasil di-reset!")
+    st.rerun()
+
+# ==========================================================
+# HALAMAN 1: KASIR POS (TAMPILAN 2 KOLOM ALA NUTAPOS)
+# ==========================================================
+if menu_aktif == "🛒 Kasir (POS)":
+    # Header Bar Atas
+    st.markdown(
+        """
+        <div style="background:#FFFFFF; padding:10px 18px; border-radius:10px; border:1px solid #E5E7EB; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#28A745; font-weight:700; font-size:14px;">● Online — Shift Pagi</span>
+            <span style="color:#374151; font-weight:600; font-size:14px;">🏪 Kedai Kopi & Resto Mahasiswa</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    kolom_struk, kolom_katalog = st.columns([1.15, 1.85], gap="medium")
+
+    # --- KOLOM TENGAH: STRUK & KERANJANG PESANAN ---
+    with kolom_struk:
+        # Hitung Total Keranjang
+        subtotal_keranjang = 0
+        for nama_item, qty in st.session_state.keranjang.items():
+            harga_item = next(p["harga"] for p in PRODUK_FNB if p["nama"] == nama_item)
+            subtotal_keranjang += harga_item * qty
+
+        pajak_pb1 = subtotal_keranjang * 0.10
+        total_akhir = subtotal_keranjang + pajak_pb1
+
+        # Kotak Total Harga Besar
+        st.markdown(
+            f'<div class="total-display">Rp {total_akhir:,.0f}</div>',
+            unsafe_allow_html=True,
+        )
+
+        with st.container(border=True):
+            st.markdown("**🧾 Daftar Pesanan Saat Ini**")
+            st.divider()
+
+            if not st.session_state.keranjang:
+                st.info("Belum ada menu dipilih. Klik tombol **+ Tambah** pada katalog di sebelah kanan.")
+            else:
+                item_dihapus = None
+                for nama_item, qty in list(st.session_state.keranjang.items()):
+                    harga_satuan = next(p["harga"] for p in PRODUK_FNB if p["nama"] == nama_item)
+                    total_per_item = harga_satuan * qty
+
+                    c_nama, c_kurang, c_qty, c_tambah, c_harga = st.columns([3.2, 0.8, 0.8, 0.8, 2.2])
+                    c_nama.markdown(f"**{nama_item}**")
+                    if c_kurang.button("➖", key=f"min_{nama_item}"):
+                        if qty > 1:
+                            st.session_state.keranjang[nama_item] -= 1
+                        else:
+                            item_dihapus = nama_item
+                        st.rerun()
+                    c_qty.markdown(f"<div style='text-align:center; padding-top:5px;'><b>{qty}</b></div>", unsafe_allow_html=True)
+                    if c_tambah.button("➕", key=f"plus_{nama_item}"):
+                        st.session_state.keranjang[nama_item] += 1
+                        st.rerun()
+                    c_harga.markdown(f"<div style='text-align:right; padding-top:5px;'>Rp {total_per_item:,.0f}</div>", unsafe_allow_html=True)
+
+                if item_dihapus:
+                    del st.session_state.keranjang[item_dihapus]
+                    st.rerun()
+
+            st.divider()
+            # Rincian Subtotal & Pajak PB1
+            r1, r2 = st.columns(2)
+            r1.write("Total sebelum pajak")
+            r2.markdown(f"<div style='text-align:right;'>Rp {subtotal_keranjang:,.0f}</div>", unsafe_allow_html=True)
+
+            r3, r4 = st.columns(2)
+            r3.write("PB1 (10%)")
+            r4.markdown(f"<div style='text-align:right;'>Rp {pajak_pb1:,.0f}</div>", unsafe_allow_html=True)
+
+            r5, r6 = st.columns(2)
+            r5.markdown("**Total Harga**")
+            r6.markdown(f"<div style='text-align:right;'><b>Rp {total_akhir:,.0f}</b></div>", unsafe_allow_html=True)
+
+            st.write("")
+            metode_bayar = st.radio("Metode Pembayaran:", ["Cash", "QRIS"], horizontal=True)
+
+            btn_kosong, btn_bayar = st.columns([1, 2])
+            if btn_kosong.button("Batal", use_container_width=True):
+                st.session_state.keranjang = {}
+                st.rerun()
+
+            if btn_bayar.button("Bayar", type="primary", use_container_width=True, disabled=(total_akhir == 0)):
+                waktu_skrg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                no_faktur = f"INV-{datetime.now().strftime('%H%M%S')}"
+
+                for nama_item, qty in st.session_state.keranjang.items():
+                    harga_satuan = next(p["harga"] for p in PRODUK_FNB if p["nama"] == nama_item)
+                    sub = harga_satuan * qty
+                    pjk = sub * 0.10
+                    tot = sub + pjk
+                    c.execute(
+                        """INSERT INTO penjualan (no_faktur, waktu, item, jumlah, subtotal, pajak, total_harga, metode)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                        (no_faktur, waktu_skrg, nama_item, qty, sub, pjk, tot, metode_bayar),
+                    )
+                conn.commit()
+                st.session_state.keranjang = {}
+                st.toast(f"✅ Pembayaran {no_faktur} (Rp {total_akhir:,.0f}) berhasil dicatat!", icon="🎉")
+                st.rerun()
+
+    # --- KOLOM KANAN: KATALOG MENU GRID ---
+    with kolom_katalog:
+        with st.container(border=True):
+            cari_produk = st.text_input("🔍 Cari produk di sini...", placeholder="Ketik nama makanan atau minuman...")
+            kategori_pilih = st.radio(
+                "Kategori:",
+                ["Semua", "Makanan", "Minuman", "Snack"],
+                horizontal=True,
+                label_visibility="collapsed",
+            )
+
+            # Filter Produk
+            produk_tampil = [
+                p for p in PRODUK_FNB
+                if (kategori_pilih == "Semua" or p["kategori"] == kategori_pilih)
+                and (cari_produk.lower() in p["nama"].lower())
+            ]
+
+            st.write("")
+            # Render Grid 4 Kolom ala Nutapos
+            cols_per_row = 4
+            for i in range(0, len(produk_tampil), cols_per_row):
+                row_cols = st.columns(cols_per_row)
+                for j in range(cols_per_row):
+                    if i + j < len(produk_tampil):
+                        item = produk_tampil[i + j]
+                        with row_cols[j]:
+                            st.markdown(
+                                f"""
+                                <div class="product-box">
+                                    <div class="product-emoji">{item['ikon']}</div>
+                                    <div class="product-name">{item['nama']}</div>
+                                    <div class="product-price">Rp {item['harga']:,.0f}</div>
+                                </div>
+                                """,
+                                unsafe_allow_html=True,
+                            )
+                            if st.button("+ Tambah", key=f"add_{item['nama']}", use_container_width=True):
+                                st.session_state.keranjang[item["nama"]] = (
+                                    st.session_state.keranjang.get(item["nama"], 0) + 1
+                                )
+                                st.rerun()
+
+# ==========================================================
+# HALAMAN 2: KAS KECIL (MASUK & KELUAR)
+# ==========================================================
+elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
+    st.subheader("💸 Siklus Kas Kecil (Petty Cash Management)")
+    with st.container(border=True):
+        jenis_transaksi = st.radio(
+            "Pilih Jenis Mutasi Kas Kecil:",
+            ["Pengeluaran Kas Kecil (Keluar)", "Pengisian Dana Kas Kecil (Masuk)"],
+            horizontal=True,
+        )
+
+        with st.form("form_kas_kecil", clear_on_submit=True):
+            if "Masuk" in jenis_transaksi:
+                keterangan = st.text_input("Keterangan (Contoh: Pengisian Saldo Awal Kas Kecil)")
+                akun_lawan = st.selectbox("Sumber Dana (Kredit):", ["Kas Besar / Brankas", "Bank BCA"])
+            else:
+                keterangan = st.text_input("Keterangan Pengeluaran (Contoh: Beli Es Batu, Galon Air)")
+                akun_lawan = st.selectbox(
+                    "Kategori Beban (Debit):",
+                    ["Beban Bahan Penolong Dapur", "Beban Perlengkapan Toko", "Beban Transportasi & Kurir", "Beban Lain-lain"],
+                )
+
+            nominal = st.number_input("Nominal (Rp):", min_value=1000, step=5000)
+            pj = st.text_input("Nama Penanggung Jawab:")
+
+            if st.form_submit_button("Simpan Mutasi Kas Kecil", type="primary"):
+                if keterangan and pj:
+                    waktu_skrg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    tipe = "Masuk" if "Masuk" in jenis_transaksi else "Keluar"
+                    c.execute(
+                        """INSERT INTO kas_kecil (waktu, jenis, keterangan, akun_lawan, jumlah, penanggung_jawab)
+                           VALUES (?, ?, ?, ?, ?, ?)""",
+                        (waktu_skrg, tipe, keterangan, akun_lawan, nominal, pj),
+                    )
+                    conn.commit()
+                    st.success(f"✅ Transaksi Kas Kecil ({tipe}) berhasil disimpan!")
+                else:
+                    st.warning("Lengkapi keterangan dan nama penanggung jawab.")
+
+# ==========================================================
+# HALAMAN 3: LAPORAN KAS & JURNAL UMUM
+# ==========================================================
+elif menu_aktif == "📊 Laporan Kas & Jurnal":
+    st.subheader("📊 Laporan Arus Kas & Jurnal Umum Otomatis")
+
+    df_penjualan = pd.read_sql_query("SELECT * FROM penjualan", conn)
+    df_kas_kecil = pd.read_sql_query("SELECT * FROM kas_kecil", conn)
+
+    kas_masuk_tunai = df_penjualan[df_penjualan["metode"] == "Cash"]["total_harga"].sum() if not df_penjualan.empty else 0
+    kas_masuk_qris = df_penjualan[df_penjualan["metode"] == "QRIS"]["total_harga"].sum() if not df_penjualan.empty else 0
+    kk_masuk = df_kas_kecil[df_kas_kecil["jenis"] == "Masuk"]["jumlah"].sum() if not df_kas_kecil.empty else 0
+    kk_keluar = df_kas_kecil[df_kas_kecil["jenis"] == "Keluar"]["jumlah"].sum() if not df_kas_kecil.empty else 0
+
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Kas Laci Penjualan (Cash)", f"Rp {saldo_awal_kas + kas_masuk_tunai:,.0f}")
+    c2.metric("Rekening Bank / QRIS", f"Rp {kas_masuk_qris:,.0f}")
+    c3.metric("Dana Kas Kecil Masuk", f"Rp {kk_masuk:,.0f}")
+    c4.metric("Sisa Saldo Kas Kecil", f"Rp {kk_masuk - kk_keluar:,.0f}")
+
+    tab1, tab2 = st.tabs(["📒 Laporan Mutasi Kas (Buku Kas)", "📖 Jurnal Umum Otomatis"])
+
+    with tab1:
+        mutasi_kas = [
+            {
+                "Waktu": "Awal Shift",
+                "No. Bukti": "OPEN-00",
+                "Pos Kas": "Kas Laci Kasir",
+                "Keterangan": "Saldo Awal Modal Kasir",
+                "Pemasukan (Debit)": saldo_awal_kas,
+                "Pengeluaran (Kredit)": 0,
+            }
+        ]
+        for _, row in df_penjualan.iterrows():
+            mutasi_kas.append(
+                {
+                    "Waktu": row["waktu"],
+                    "No. Bukti": row["no_faktur"],
+                    "Pos Kas": "Kas Laci Kasir" if row["metode"] == "Cash" else "Bank / QRIS",
+                    "Keterangan": f"Penjualan {row['item']} ({row['jumlah']}x)",
+                    "Pemasukan (Debit)": row["total_harga"],
+                    "Pengeluaran (Kredit)": 0,
+                }
+            )
+        for _, row in df_kas_kecil.iterrows():
+            is_masuk = row["jenis"] == "Masuk"
+            mutasi_kas.append(
+                {
+                    "Waktu": row["waktu"],
+                    "No. Bukti": f"PC-{row['id']:03d}",
+                    "Pos Kas": "Kas Kecil",
+                    "Keterangan": f"[{row['jenis'].upper()}] {row['keterangan']} ({row['penanggung_jawab']})",
+                    "Pemasukan (Debit)": row["jumlah"] if is_masuk else 0,
+                    "Pengeluaran (Kredit)": 0 if is_masuk else row["jumlah"],
+                }
+            )
+
+        df_kas = pd.DataFrame(mutasi_kas)
+        df_kas["Saldo Kumulatif"] = (df_kas["Pemasukan (Debit)"] - df_kas["Pengeluaran (Kredit)"]).cumsum()
+        df_tampil = df_kas.copy()
+        for col in ["Pemasukan (Debit)", "Pengeluaran (Kredit)", "Saldo Kumulatif"]:
+            df_tampil[col] = df_tampil[col].apply(lambda x: f"Rp {x:,.0f}")
+        st.dataframe(df_tampil, use_container_width=True, hide_index=True)
+
+    with tab2:
+        jurnal = []
+        for _, row in df_penjualan.iterrows():
+            akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
+            jurnal.extend([
+                {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
+                {"Waktu": "", "Ref": "", "Akun": f"    Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
+                {"Waktu": "", "Ref": "", "Akun": "    Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
+            ])
+        for _, row in df_kas_kecil.iterrows():
+            if row["jenis"] == "Masuk":
+                jurnal.extend([
+                    {"Waktu": row["waktu"], "Ref": f"PC-IN-{row['id']:03d}", "Akun": f"Kas Kecil ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
+                    {"Waktu": "", "Ref": "", "Akun": f"    {row['akun_lawan']}", "Debit": 0, "Kredit": row["jumlah"]},
+                ])
+            else:
+                jurnal.extend([
+                    {"Waktu": row["waktu"], "Ref": f"PC-OUT-{row['id']:03d}", "Akun": f"{row['akun_lawan']} ({row['keterangan']})", "Debit": row["jumlah"], "Kredit": 0},
+                    {"Waktu": "", "Ref": "", "Akun": "    Kas Kecil", "Debit": 0, "Kredit": row["jumlah"]},
+                ])
+
+        if jurnal:
+            df_j = pd.DataFrame(jurnal)
+            tot_d, tot_k = df_j["Debit"].sum(), df_j["Kredit"].sum()
+            df_j_tampil = df_j.copy()
+            df_j_tampil["Debit"] = df_j_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_j_tampil["Kredit"] = df_j_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.table(df_j_tampil)
+            if tot_d == tot_k:
+                st.success(f"✅ JURNAL BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
+        else:
+            st.info("Belum ada transaksi tercatat.")
