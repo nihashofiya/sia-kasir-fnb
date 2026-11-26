@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + GARIS PEMBATAS TEGAS ---
+# --- TERAPKAN CSS BERDIMENSI 3D + POP-IT & HOVER WARNA TOMBOL BAYAR ---
 st.markdown(
     f"""
     <style>
@@ -288,7 +288,7 @@ st.markdown(
         font-weight: 600;
     }}
 
-    /* Tombol Utama 3D */
+    /* Tombol Utama ("Bayar") 3D + Efek Pop-It */
     div.stButton > button[kind="primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border: 1.5px solid {warna_primary_dark} !important;
@@ -299,43 +299,69 @@ st.markdown(
         box-shadow:
             0 12px 22px -5px {warna_primary}88,
             0 6px 12px rgba(0, 0, 0, 0.22);
-        transition: all 0.16s ease !important;
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
     }}
     div.stButton > button[kind="primary"]:hover {{
-        transform: translateY(-3px);
+        transform: translateY(-4px) scale(1.03);
         box-shadow:
             0 18px 28px -5px {warna_primary}AA,
             0 10px 18px rgba(0, 0, 0, 0.28);
     }}
     div.stButton > button[kind="primary"]:active {{
-        transform: translateY(3px);
+        transform: translateY(4px) scale(0.96);
         border-bottom-width: 1px !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
     }}
     div.stButton > button[kind="primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder 3D dengan Garis Tegas */
-    div.stButton > button[kind="secondary"] {{
+    /* Tombol Sekunder ("+ Tambah", "Batal", dll.) + Form Submit ("Simpan Mutasi Kas Kecil") + Download Excel:
+       Berubah Warna Seperti Tombol "Bayar" Saat Disentuh + Efek Pop-It */
+    div.stButton > button[kind="secondary"],
+    div.stFormSubmitButton > button,
+    div.stDownloadButton > button {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1.5px solid {warna_border} !important;
-        border-bottom: 4px solid {warna_border} !important;
+        border-bottom: 5px solid {warna_border} !important;
         color: {warna_text} !important;
-        font-weight: 600;
-        border-radius: 11px;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
         box-shadow:
             0 8px 16px -4px rgba(0, 0, 0, 0.14),
-            0 3px 6px rgba(0, 0, 0, 0.08);
-        transition: all 0.16s ease !important;
+            0 3px 6px rgba(0, 0, 0, 0.08) !important;
+        transition:
+            transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+            background 0.2s ease,
+            border-color 0.2s ease,
+            box-shadow 0.2s ease !important;
     }}
-    div.stButton > button[kind="secondary"]:hover {{
-        transform: translateY(-2px);
-        border-color: {warna_primary} !important;
-        border-bottom-color: {warna_primary} !important;
+
+    div.stButton > button[kind="secondary"]:hover,
+    div.stFormSubmitButton > button:hover,
+    div.stDownloadButton > button:hover {{
+        background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
+        border: 1.5px solid {warna_primary_dark} !important;
+        border-bottom: 5px solid #0F172A !important;
+        color: #FFFFFF !important;
+        transform: translateY(-4px) scale(1.035);
+        box-shadow:
+            0 18px 28px -5px {warna_primary}AA,
+            0 10px 18px rgba(0, 0, 0, 0.26) !important;
     }}
-    div.stButton > button[kind="secondary"]:active {{
-        transform: translateY(2px);
+
+    div.stButton > button[kind="secondary"]:hover *,
+    div.stFormSubmitButton > button:hover *,
+    div.stDownloadButton > button:hover * {{
+        color: #FFFFFF !important;
+    }}
+
+    div.stButton > button[kind="secondary"]:active,
+    div.stFormSubmitButton > button:active,
+    div.stDownloadButton > button:active {{
+        transform: translateY(4px) scale(0.95);
         border-bottom-width: 1px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22) !important;
     }}
 
     /* Kartu Metrik Keuangan 3D dengan Garis Tegas */
@@ -667,7 +693,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
             pj = st.text_input("Nama Penanggung Jawab:")
             st.divider()
 
-            if st.form_submit_button("Simpan Mutasi Kas Kecil", type="primary"):
+            if st.form_submit_button("Simpan Mutasi Kas Kecil"):
                 if keterangan and pj:
                     waktu_skrg = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     tipe = "Masuk" if "Masuk" in jenis_transaksi else "Keluar"
@@ -824,7 +850,6 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         data=buffer_excel.getvalue(),
         file_name=f"Laporan_SIA_FnB_{datetime.now().strftime('%Y%m%d')}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        type="primary",
     )
 
     tab1, tab2, tab3 = st.tabs([
