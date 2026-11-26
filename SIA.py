@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + POP-IT & HOVER WARNA TOMBOL BAYAR ---
+# --- TERAPKAN CSS BERDIMENSI 3D + EFEK POP-IT & HOVER WARNA TOMBOL BAYAR ---
 st.markdown(
     f"""
     <style>
@@ -299,69 +299,113 @@ st.markdown(
         box-shadow:
             0 12px 22px -5px {warna_primary}88,
             0 6px 12px rgba(0, 0, 0, 0.22);
-        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+        transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
     div.stButton > button[kind="primary"]:hover {{
-        transform: translateY(-4px) scale(1.03);
+        transform: translateY(-4px) scale(1.04) !important;
         box-shadow:
-            0 18px 28px -5px {warna_primary}AA,
-            0 10px 18px rgba(0, 0, 0, 0.28);
+            0 18px 28px -5px {warna_primary}BB,
+            0 10px 18px rgba(0, 0, 0, 0.28) !important;
     }}
     div.stButton > button[kind="primary"]:active {{
-        transform: translateY(4px) scale(0.96);
+        transform: translateY(3px) scale(0.97) !important;
         border-bottom-width: 1px !important;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22);
     }}
     div.stButton > button[kind="primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder ("+ Tambah", "Batal", dll.) + Form Submit ("Simpan Mutasi Kas Kecil") + Download Excel:
-       Berubah Warna Seperti Tombol "Bayar" Saat Disentuh + Efek Pop-It */
-    div.stButton > button[kind="secondary"],
-    div.stFormSubmitButton > button,
-    div.stDownloadButton > button {{
+    /* Tombol Sekunder (+ Tambah, Batal, Hapus) -> Berubah Warna Jadi Seperti "Bayar" + Efek Pop-It */
+    div.stButton > button[kind="secondary"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1.5px solid {warna_border} !important;
-        border-bottom: 5px solid {warna_border} !important;
+        border-bottom: 4px solid {warna_border} !important;
+        color: {warna_text} !important;
+        font-weight: 600;
+        border-radius: 11px;
+        box-shadow:
+            0 8px 16px -4px rgba(0, 0, 0, 0.14),
+            0 3px 6px rgba(0, 0, 0, 0.08);
+        transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }}
+    div.stButton > button[kind="secondary"]:hover {{
+        background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
+        border-color: {warna_primary_dark} !important;
+        border-bottom: 5px solid #0F172A !important;
+        color: #FFFFFF !important;
+        transform: translateY(-4px) scale(1.05) !important;
+        box-shadow:
+            0 16px 26px -5px {warna_primary}99,
+            0 8px 15px rgba(0, 0, 0, 0.24) !important;
+    }}
+    div.stButton > button[kind="secondary"]:hover * {{
+        color: #FFFFFF !important;
+    }}
+    div.stButton > button[kind="secondary"]:active {{
+        transform: translateY(3px) scale(0.96) !important;
+        border-bottom-width: 1px !important;
+    }}
+
+    /* Tombol Form Submit ("Simpan Mutasi Kas Kecil") -> Efek Pop-It & Berubah Warna Saat Disentuh */
+    div[data-testid="stFormSubmitButton"] > button {{
+        background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
+        border: 2px solid {warna_primary} !important;
+        border-bottom: 5px solid {warna_primary} !important;
         color: {warna_text} !important;
         font-weight: 700 !important;
         border-radius: 12px !important;
         box-shadow:
-            0 8px 16px -4px rgba(0, 0, 0, 0.14),
-            0 3px 6px rgba(0, 0, 0, 0.08) !important;
-        transition:
-            transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
-            background 0.2s ease,
-            border-color 0.2s ease,
-            box-shadow 0.2s ease !important;
+            0 10px 20px -5px rgba(0, 0, 0, 0.16),
+            0 4px 8px rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-
-    div.stButton > button[kind="secondary"]:hover,
-    div.stFormSubmitButton > button:hover,
-    div.stDownloadButton > button:hover {{
+    div[data-testid="stFormSubmitButton"] > button:hover {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
-        border: 1.5px solid {warna_primary_dark} !important;
+        border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        transform: translateY(-4px) scale(1.035);
+        transform: translateY(-4px) scale(1.04) !important;
         box-shadow:
             0 18px 28px -5px {warna_primary}AA,
             0 10px 18px rgba(0, 0, 0, 0.26) !important;
     }}
+    div[data-testid="stFormSubmitButton"] > button:hover * {{
+        color: #FFFFFF !important;
+    }}
+    div[data-testid="stFormSubmitButton"] > button:active {{
+        transform: translateY(3px) scale(0.97) !important;
+        border-bottom-width: 1px !important;
+    }}
 
-    div.stButton > button[kind="secondary"]:hover *,
-    div.stFormSubmitButton > button:hover *,
+    /* Tombol Download ("Download Laporan Format Excel" & "Unduh File Struk") -> Efek Pop-It & Berubah Warna */
+    div.stDownloadButton > button {{
+        background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
+        border: 2px solid {warna_primary} !important;
+        border-bottom: 5px solid {warna_primary} !important;
+        color: {warna_text} !important;
+        border-radius: 12px !important;
+        box-shadow:
+            0 10px 20px -5px rgba(0, 0, 0, 0.16),
+            0 4px 8px rgba(0, 0, 0, 0.08) !important;
+        font-weight: 700 !important;
+        transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }}
+    div.stDownloadButton > button:hover {{
+        background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
+        border-color: {warna_primary_dark} !important;
+        border-bottom: 5px solid #0F172A !important;
+        color: #FFFFFF !important;
+        transform: translateY(-4px) scale(1.04) !important;
+        box-shadow:
+            0 18px 28px -5px {warna_primary}AA,
+            0 10px 18px rgba(0, 0, 0, 0.26) !important;
+    }}
     div.stDownloadButton > button:hover * {{
         color: #FFFFFF !important;
     }}
-
-    div.stButton > button[kind="secondary"]:active,
-    div.stFormSubmitButton > button:active,
     div.stDownloadButton > button:active {{
-        transform: translateY(4px) scale(0.95);
+        transform: translateY(3px) scale(0.97) !important;
         border-bottom-width: 1px !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22) !important;
     }}
 
     /* Kartu Metrik Keuangan 3D dengan Garis Tegas */
@@ -563,29 +607,60 @@ if menu_aktif == "🛒 Kasir (POS)":
                     baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
 
                 html_struk = f"""
-                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:2px dashed #475569; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 10px 20px rgba(0,0,0,0.12);">
-                    <div style="text-align:center; font-weight:bold; font-size:14px; color:#111827;">KEDAI KOPI & RESTO MAHASISWA</div>
-                    <div style="text-align:center; font-size:11px; margin-bottom:8px; color:#374151;">Sistem Informasi Akuntansi FnB</div>
-                    <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
-                    <div style="color:#111827;">No. Faktur : {s['no_faktur']}</div>
-                    <div style="color:#111827;">Waktu      : {s['waktu']}</div>
-                    <div style="color:#111827;">Pembayaran : {s['metode']}</div>
-                    <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
-                    <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                        {baris_item_html}
-                    </table>
-                    <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
-                    <table style="width:100%; font-size:12px; color:#111827;">
-                        <tr><td>Subtotal (DPP)</td><td style="text-align:right;">Rp {s['subtotal']:,.0f}</td></tr>
-                        <tr><td>Pajak PB1 (10%)</td><td style="text-align:right;">Rp {s['pajak']:,.0f}</td></tr>
-                        <tr style="font-weight:bold; font-size:13px;"><td>TOTAL BAYAR</td><td style="text-align:right;">Rp {s['total']:,.0f}</td></tr>
-                    </table>
-                    <div style="border-top:1.5px dashed #475569; margin:8px 0;"></div>
-                    <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
+                <style>
+                .btn-print-pop {{
+                    margin-top: 12px;
+                    width: 100%;
+                    background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
+                    color: {warna_text};
+                    border: 2px solid {warna_primary};
+                    border-bottom: 5px solid {warna_primary};
+                    padding: 10px;
+                    border-radius: 12px;
+                    font-weight: 700;
+                    font-size: 14px;
+                    cursor: pointer;
+                    box-shadow: 0 10px 18px -4px rgba(0,0,0,0.18);
+                    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }}
+                .btn-print-pop:hover {{
+                    background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%);
+                    border-color: {warna_primary_dark};
+                    border-bottom: 5px solid #0F172A;
+                    color: #FFFFFF;
+                    transform: translateY(-4px) scale(1.03);
+                    box-shadow: 0 16px 26px -5px {warna_primary}AA, 0 8px 15px rgba(0,0,0,0.24);
+                }}
+                .btn-print-pop:active {{
+                    transform: translateY(3px) scale(0.97);
+                    border-bottom-width: 1px;
+                }}
+                </style>
+                <div style="padding: 4px 6px 10px 6px;">
+                    <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:2px dashed #475569; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 10px 20px rgba(0,0,0,0.12);">
+                        <div style="text-align:center; font-weight:bold; font-size:14px; color:#111827;">KEDAI KOPI & RESTO MAHASISWA</div>
+                        <div style="text-align:center; font-size:11px; margin-bottom:8px; color:#374151;">Sistem Informasi Akuntansi FnB</div>
+                        <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
+                        <div style="color:#111827;">No. Faktur : {s['no_faktur']}</div>
+                        <div style="color:#111827;">Waktu      : {s['waktu']}</div>
+                        <div style="color:#111827;">Pembayaran : {s['metode']}</div>
+                        <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                            {baris_item_html}
+                        </table>
+                        <div style="border-top:1.5px dashed #475569; margin:6px 0;"></div>
+                        <table style="width:100%; font-size:12px; color:#111827;">
+                            <tr><td>Subtotal (DPP)</td><td style="text-align:right;">Rp {s['subtotal']:,.0f}</td></tr>
+                            <tr><td>Pajak PB1 (10%)</td><td style="text-align:right;">Rp {s['pajak']:,.0f}</td></tr>
+                            <tr style="font-weight:bold; font-size:13px;"><td>TOTAL BAYAR</td><td style="text-align:right;">Rp {s['total']:,.0f}</td></tr>
+                        </table>
+                        <div style="border-top:1.5px dashed #475569; margin:8px 0;"></div>
+                        <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
+                    </div>
+                    <button class="btn-print-pop" onclick="printStruk()">
+                        🖨️ Cetak Struk / Simpan PDF
+                    </button>
                 </div>
-                <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:none; border-bottom:4px solid rgba(0,0,0,0.4); padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 10px 18px -4px rgba(0,0,0,0.25);">
-                    🖨️ Cetak Struk / Simpan PDF
-                </button>
                 <script>
                 function printStruk() {{
                     var isi = document.getElementById('area-struk').innerHTML;
@@ -599,7 +674,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                 }}
                 </script>
                 """
-                components.html(html_struk, height=355, scrolling=True)
+                components.html(html_struk, height=370, scrolling=True)
 
                 teks_struk = (
                     f"KEDAI KOPI & RESTO MAHASISWA\n"
