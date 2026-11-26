@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + EFEK POP-IT & HOVER WARNA DI SEMUA TOMBOL ---
+# --- TERAPKAN CSS BERDIMENSI 3D + EFEK POP-IT & HOVER WARNA TOMBOL BAYAR ---
 st.markdown(
     f"""
     <style>
@@ -258,8 +258,7 @@ st.markdown(
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
     .product-box:hover,
-    div[data-testid="column"]:has(button:hover) .product-box,
-    div[data-testid="stColumn"]:has(button:hover) .product-box {{
+    div[data-testid="column"]:has(button:hover) .product-box {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
@@ -279,8 +278,7 @@ st.markdown(
         transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
     .product-box:hover .product-emoji,
-    div[data-testid="column"]:has(button:hover) .product-emoji,
-    div[data-testid="stColumn"]:has(button:hover) .product-emoji {{
+    div[data-testid="column"]:has(button:hover) .product-emoji {{
         transform: scale(1.18) translateY(-2px);
         filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
     }}
@@ -304,80 +302,66 @@ st.markdown(
     .product-box:hover .product-name,
     .product-box:hover .product-price,
     div[data-testid="column"]:has(button:hover) .product-name,
-    div[data-testid="column"]:has(button:hover) .product-price,
-    div[data-testid="stColumn"]:has(button:hover) .product-name,
-    div[data-testid="stColumn"]:has(button:hover) .product-price {{
+    div[data-testid="column"]:has(button:hover) .product-price {{
         color: #FFFFFF !important;
         opacity: 1 !important;
     }}
 
     /* Tombol Utama ("Bayar") 3D + Efek Pop-It */
-    div.stButton > button[kind="primary"],
-    div.stButton > button[data-testid="stBaseButton-primary"] {{
+    div.stButton > button[kind="primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border: 1.5px solid {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        font-weight: 700 !important;
-        border-radius: 12px !important;
+        font-weight: 700;
+        border-radius: 12px;
         box-shadow:
             0 12px 22px -5px {warna_primary}88,
-            0 6px 12px rgba(0, 0, 0, 0.22) !important;
+            0 6px 12px rgba(0, 0, 0, 0.22);
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-    div.stButton > button[kind="primary"]:hover,
-    div.stButton > button[data-testid="stBaseButton-primary"]:hover {{
+    div.stButton > button[kind="primary"]:hover {{
         transform: translateY(-4px) scale(1.04) !important;
         box-shadow:
             0 18px 28px -5px {warna_primary}BB,
             0 10px 18px rgba(0, 0, 0, 0.28) !important;
     }}
-    div.stButton > button[kind="primary"]:active,
-    div.stButton > button[data-testid="stBaseButton-primary"]:active {{
+    div.stButton > button[kind="primary"]:active {{
         transform: translateY(3px) scale(0.97) !important;
         border-bottom-width: 1px !important;
     }}
-    div.stButton > button[kind="primary"] *,
-    div.stButton > button[data-testid="stBaseButton-primary"] * {{
+    div.stButton > button[kind="primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder (+ Tambah, Batal, Hapus 🗑️, Reset) -> Berubah Warna Jadi Seperti "Bayar" + Efek Pop-It */
-    div.stButton > button[kind="secondary"],
-    div.stButton > button[data-testid="stBaseButton-secondary"],
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]) {{
+    /* Tombol Sekunder (+ Tambah, Batal, Hapus) -> Berubah Warna Jadi Seperti "Bayar" + Efek Pop-It */
+    div.stButton > button[kind="secondary"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1.5px solid {warna_border} !important;
         border-bottom: 4px solid {warna_border} !important;
         color: {warna_text} !important;
-        font-weight: 600 !important;
-        border-radius: 11px !important;
+        font-weight: 600;
+        border-radius: 11px;
         box-shadow:
             0 8px 16px -4px rgba(0, 0, 0, 0.14),
-            0 3px 6px rgba(0, 0, 0, 0.08) !important;
+            0 3px 6px rgba(0, 0, 0, 0.08);
         transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     }}
-    div.stButton > button[kind="secondary"]:not(:disabled):hover,
-    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):hover,
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):hover {{
+    div.stButton > button[kind="secondary"]:hover {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
         border-color: {warna_primary_dark} !important;
         border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
-        transform: translateY(-4px) scale(1.08) !important;
+        transform: translateY(-4px) scale(1.05) !important;
         box-shadow:
             0 16px 26px -5px {warna_primary}99,
             0 8px 15px rgba(0, 0, 0, 0.24) !important;
     }}
-    div.stButton > button[kind="secondary"]:not(:disabled):hover *,
-    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):hover *,
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):hover * {{
+    div.stButton > button[kind="secondary"]:hover * {{
         color: #FFFFFF !important;
     }}
-    div.stButton > button[kind="secondary"]:not(:disabled):active,
-    div.stButton > button[data-testid="stBaseButton-secondary"]:not(:disabled):active,
-    div.stButton > button:not([kind="primary"]):not([data-testid="stBaseButton-primary"]):not(:disabled):active {{
-        transform: translateY(3px) scale(0.95) !important;
+    div.stButton > button[kind="secondary"]:active {{
+        transform: translateY(3px) scale(0.96) !important;
         border-bottom-width: 1px !important;
     }}
 
