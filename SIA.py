@@ -115,16 +115,17 @@ conn.commit()
 
 # --- DATA KATALOG PRODUK FNB ---
 PRODUK_FNB = [
-  {"nama": "Burger", "harga": 20000, "kategori": "Makanan", "ikon": "🍔"},
-    {"nama": "Sandwich", "harga": 15000, "kategori": "Makanan", "ikon": "🥪"},
-    {"nama": "Nasi Ayam Geprek", "harga": 10000, "kategori": "Makanan", "ikon": "🍗"},
-    {"nama": "Mie Goreng", "harga": 8000, "kategori": "Makanan", "ikon": "🍜"},
-    {"nama": "French Fries", "harga": 10000, "kategori": "Snack", "ikon": "🍟"},
-    {"nama": "Croissant Butter", "harga": 20000, "kategori": "Snack", "ikon": "🥐"},
+    {"nama": "Black Burger", "harga": 40000, "kategori": "Makanan", "ikon": "🍔"},
+    {"nama": "Mexican Burger", "harga": 45000, "kategori": "Makanan", "ikon": "🌮"},
+    {"nama": "Ham Sandwich", "harga": 35000, "kategori": "Makanan", "ikon": "🥪"},
+    {"nama": "Nasi Ayam Geprek", "harga": 25000, "kategori": "Makanan", "ikon": "🍗"},
+    {"nama": "French Fries", "harga": 20000, "kategori": "Snack", "ikon": "🍟"},
+    {"nama": "Croissant Butter", "harga": 22000, "kategori": "Snack", "ikon": "🥐"},
     {"nama": "Kopi Susu Aren", "harga": 18000, "kategori": "Minuman", "ikon": "🧋"},
     {"nama": "Americano Ice", "harga": 15000, "kategori": "Minuman", "ikon": "☕"},
     {"nama": "Matcha Latte", "harga": 24000, "kategori": "Minuman", "ikon": "🍵"},
-    {"nama": "Fanta Strawberry", "harga": 10000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Strawberry", "harga": 12000, "kategori": "Minuman", "ikon": "🥤"},
+    {"nama": "Fanta Orange", "harga": 12000, "kategori": "Minuman", "ikon": "🧃"},
     {"nama": "Es Teh Manis", "harga": 8000, "kategori": "Minuman", "ikon": "🧊"},
 ]
 
@@ -162,14 +163,14 @@ saldo_awal_kas = st.sidebar.number_input(
 st.sidebar.markdown("---")
 st.sidebar.caption("⚙️ Pengaturan Data Simulasi")
 konfirmasi_reset = st.sidebar.checkbox("Konfirmasi hapus semua data")
-if st.sidebar.button("🗑️ Reset Transaksi", disabled=not konfirmasi_reset, use_container_width=True):
+if st.sidebar.button("🗑️ Reset Semua Transaksi", disabled=not konfirmasi_reset, use_container_width=True):
     c.execute("DELETE FROM penjualan")
     c.execute("DELETE FROM kas_kecil")
     c.execute("DELETE FROM sqlite_sequence WHERE name='penjualan' OR name='kas_kecil'")
     conn.commit()
     st.session_state.keranjang = {}
     st.session_state.struk_terakhir = None
-    st.sidebar.success("Data berhasil di-reset!")
+    st.sidebar.success("Semua data berhasil di-reset!")
     st.rerun()
 
 # ==========================================================
@@ -277,7 +278,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                     })
                 conn.commit()
 
-                # Simpan data struk terakhir untuk dicetak
                 st.session_state.struk_terakhir = {
                     "no_faktur": no_faktur,
                     "waktu": waktu_skrg,
@@ -308,7 +308,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                     """
                     baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
 
-                # Komponen HTML dengan Tombol Print Browser
                 html_struk = f"""
                 <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:6px; color:#111827; font-size:12px;">
                     <div style="text-align:center; font-weight:bold; font-size:14px;">KEDAI KOPI & RESTO MAHASISWA</div>
@@ -348,7 +347,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                 """
                 components.html(html_struk, height=340, scrolling=True)
 
-                # Tombol Download Struk Format TXT
                 teks_struk = (
                     f"KEDAI KOPI & RESTO MAHASISWA\n"
                     f"==============================\n"
@@ -454,7 +452,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
                     st.warning("Lengkapi keterangan dan nama penanggung jawab.")
 
 # ==========================================================
-# HALAMAN 3: LAPORAN KAS & JURNAL UMUM (+ EXPORT EXCEL)
+# HALAMAN 3: LAPORAN KAS, JURNAL & PEMBATALAN SATUAN
 # ==========================================================
 elif menu_aktif == "📊 Laporan Kas & Jurnal":
     st.subheader("📊 Laporan Arus Kas & Jurnal Umum Otomatis")
@@ -550,7 +548,11 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         type="primary",
     )
 
-    tab1, tab2 = st.tabs(["📒 Laporan Mutasi Kas (Buku Kas)", "📖 Jurnal Umum Otomatis"])
+    tab1, tab2, tab3 = st.tabs([
+        "📒 Laporan Mutasi Kas (Buku Kas)",
+        "📖 Jurnal Umum Otomatis",
+        "🗑️ Pembatalan / Hapus 1 Transaksi",
+    ])
 
     with tab1:
         df_tampil = df_kas.copy()
@@ -569,3 +571,90 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                 st.success(f"✅ JURNAL BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
         else:
             st.info("Belum ada transaksi tercatat.")
+
+    # --- TAB 3: HAPUS / BATALKAN 1 TRANSAKSI (VOID) ---
+    with tab3:
+        st.markdown("#### 🚫 Pembatalan Transaksi Satuan (*Void / Correction*)")
+        st.info(
+            "Gunakan fitur ini apabila pelanggan membatalkan pesanan atau terjadi kesalahan input pada satu transaksi tertentu. "
+            "Saldo kas dan Jurnal Umum akan otomatis disesuaikan kembali."
+        )
+
+        col_batal_jual, col_batal_kk = st.columns(2)
+
+        # Kolom Kiri: Pembatalan Penjualan (Per Faktur)
+        with col_batal_jual:
+            with st.container(border=True):
+                st.markdown("**1. Batalkan Transaksi Penjualan (Kasir)**")
+                if not df_penjualan.empty:
+                    # Kelompokkan per No. Faktur
+                    ringkasan_faktur = (
+                        df_penjualan.groupby(["no_faktur", "waktu", "metode"], as_index=False)
+                        .agg(
+                            daftar_item=("item", lambda x: ", ".join(x)),
+                            total_tagihan=("total_harga", "sum"),
+                        )
+                        .sort_values(by="waktu", ascending=False)
+                    )
+
+                    opsi_faktur = {
+                        f"{r['no_faktur']} | {r['daftar_item']} (Rp {r['total_tagihan']:,.0f} - {r['metode']})": r["no_faktur"]
+                        for _, r in ringkasan_faktur.iterrows()
+                    }
+
+                    pilihan_faktur_label = st.selectbox(
+                        "Pilih Nomor Faktur yang Dibatalkan:",
+                        list(opsi_faktur.keys()),
+                        key="pilih_hapus_faktur",
+                    )
+                    faktur_terpilih = opsi_faktur[pilihan_faktur_label]
+
+                    # Tampilkan detail item di faktur tersebut
+                    detail_hapus = df_penjualan[df_penjualan["no_faktur"] == faktur_terpilih][
+                        ["item", "jumlah", "total_harga", "metode"]
+                    ]
+                    st.dataframe(detail_hapus, use_container_width=True, hide_index=True)
+
+                    if st.button(f"🗑️ Batalkan Faktur {faktur_terpilih}", type="secondary", use_container_width=True):
+                        c.execute("DELETE FROM penjualan WHERE no_faktur = ?", (faktur_terpilih,))
+                        conn.commit()
+                        if (
+                            st.session_state.struk_terakhir
+                            and st.session_state.struk_terakhir["no_faktur"] == faktur_terpilih
+                        ):
+                            st.session_state.struk_terakhir = None
+                        st.success(f"✅ Faktur **{faktur_terpilih}** berhasil dibatalkan dan dihapus dari jurnal!")
+                        st.rerun()
+                else:
+                    st.caption("Tidak ada transaksi penjualan yang dapat dibatalkan.")
+
+        # Kolom Kanan: Pembatalan Mutasi Kas Kecil (Per ID)
+        with col_batal_kk:
+            with st.container(border=True):
+                st.markdown("**2. Batalkan Mutasi Kas Kecil**")
+                if not df_kas_kecil.empty:
+                    df_kk_urut = df_kas_kecil.sort_values(by="id", ascending=False)
+                    opsi_kk = {
+                        f"PC-{r['id']:03d} | [{r['jenis']}] {r['keterangan']} (Rp {r['jumlah']:,.0f})": r["id"]
+                        for _, r in df_kk_urut.iterrows()
+                    }
+
+                    pilihan_kk_label = st.selectbox(
+                        "Pilih Transaksi Kas Kecil yang Dibatalkan:",
+                        list(opsi_kk.keys()),
+                        key="pilih_hapus_kk",
+                    )
+                    id_kk_terpilih = opsi_kk[pilihan_kk_label]
+
+                    detail_kk = df_kas_kecil[df_kas_kecil["id"] == id_kk_terpilih][
+                        ["waktu", "jenis", "keterangan", "jumlah", "penanggung_jawab"]
+                    ]
+                    st.dataframe(detail_kk, use_container_width=True, hide_index=True)
+
+                    if st.button(f"🗑️ Hapus Mutasi PC-{id_kk_terpilih:03d}", type="secondary", use_container_width=True):
+                        c.execute("DELETE FROM kas_kecil WHERE id = ?", (id_kk_terpilih,))
+                        conn.commit()
+                        st.success(f"✅ Transaksi Kas Kecil **PC-{id_kk_terpilih:03d}** berhasil dihapus!")
+                        st.rerun()
+                else:
+                    st.caption("Tidak ada mutasi kas kecil yang dapat dihapus.")
