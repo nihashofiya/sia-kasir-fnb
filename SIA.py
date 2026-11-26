@@ -110,44 +110,44 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         "Hijau Modern (Default)": {
             "primary": "#28A745",
             "primary_dark": "#1B7A32",
-            "bg": "#E6ECF5",
+            "bg": "#E2E8F0",
             "card": "#FFFFFF",
-            "text": "#111827",
-            "border": "#475569",
+            "text": "#0F172A",
+            "border": "#64748B",
         },
         "Warm Coffee Shop (Cokelat & Krem)": {
             "primary": "#8B5A2B",
             "primary_dark": "#5E3A18",
-            "bg": "#EDE5DB",
+            "bg": "#E6DDD2",
             "card": "#FFFDF9",
-            "text": "#2D1B18",
-            "border": "#6D4C41",
+            "text": "#2C1A12",
+            "border": "#8D6E63",
         },
         "Biru Profesional": {
-            "primary": "#2563EB",
-            "primary_dark": "#1A44A8",
-            "bg": "#E3EAF4",
+            "primary": "#1D4ED8",
+            "primary_dark": "#1E3A8A",
+            "bg": "#DCE6F2",
             "card": "#FFFFFF",
             "text": "#0F172A",
-            "border": "#334155",
+            "border": "#475569",
         },
         "Dark Mode Elegan": {
             "primary": "#10B981",
-            "primary_dark": "#078058",
+            "primary_dark": "#059669",
             "bg": "#0B1120",
             "card": "#1E293B",
             "text": "#F8FAFC",
-            "border": "#94A3B8",
+            "border": "#64748B",
         },
     }
 
     if preset_tema == "Custom Warna Sendiri...":
         warna_primary = st.color_picker("Warna Aksen / Tombol Utama", "#1E3A8A")
         warna_primary_dark = "#0F172A"
-        warna_bg = st.color_picker("Warna Latar Belakang", "#E5E7EB")
+        warna_bg = st.color_picker("Warna Latar Belakang", "#E2E8F0")
         warna_card = st.color_picker("Warna Kartu & Sidebar", "#FFFFFF")
-        warna_text = st.color_picker("Warna Teks", "#111827")
-        warna_border = st.color_picker("Warna Garis & Pinggiran", "#374151")
+        warna_text = st.color_picker("Warna Teks", "#0F172A")
+        warna_border = st.color_picker("Warna Garis Pembatas (Border)", "#475569")
     else:
         pilihan = PRESETS[preset_tema]
         warna_primary = pilihan["primary"]
@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS BERDIMENSI 3D + GARIS PINGGIRAN TEGAS ---
+# --- TERAPKAN CSS BERDIMENSI 3D + GARIS PEMBATAS TEGAS ---
 st.markdown(
     f"""
     <style>
@@ -170,51 +170,47 @@ st.markdown(
         color: {warna_text};
     }}
 
-    /* Garis Pemisah (hr / st.divider) Tegas di Semua Menu */
-    hr, div[data-testid="stSidebar"] hr {{
+    /* Garis Divider & Horizontal Rule Tegas di Semua Halaman */
+    hr, div[data-testid="stDivider"] hr {{
         border: none !important;
         border-top: 2px solid {warna_border} !important;
-        opacity: 0.85 !important;
-        margin-top: 10px !important;
-        margin-bottom: 10px !important;
+        opacity: 0.75 !important;
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
     }}
 
-    /* Sidebar Berdimensi dengan Garis Pinggir Tegas */
+    /* Sidebar Berdimensi dengan Garis Tegas */
     section[data-testid="stSidebar"] {{
         background-color: {warna_card};
-        border-right: 2px solid {warna_border} !important;
-        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.12), 2px 0 8px rgba(0, 0, 0, 0.06);
+        border-right: 2px solid {warna_border};
+        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.14), 2px 0 8px rgba(0, 0, 0, 0.08);
     }}
     #brand-title {{
         color: {warna_primary} !important;
     }}
 
-    /* Container Berbingkai (Kartu Panel 3D dengan Garis Pinggir Tegas di Ketiga Menu) */
+    /* Container Berbingkai (Kartu Panel 3D dengan Garis Tegas) */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: {warna_card};
         border: 2px solid {warna_border} !important;
         border-bottom: 5px solid {warna_border} !important;
         border-radius: 16px;
         box-shadow:
-            0 20px 35px -10px rgba(0, 0, 0, 0.14),
-            0 8px 16px -6px rgba(0, 0, 0, 0.08),
-            0 2px 4px rgba(0, 0, 0, 0.04);
+            0 20px 35px -10px rgba(0, 0, 0, 0.16),
+            0 8px 16px -6px rgba(0, 0, 0, 0.10);
         transition: all 0.25s ease;
     }}
 
-    /* Kotak Input Teks, Angka, Selectbox & Form di Semua Menu */
-    div[data-baseweb="input"] > div,
-    div[data-baseweb="select"] > div,
-    div[data-testid="stNumberInput"] > div {{
-        border: 2px solid {warna_border} !important;
+    /* Kotak Input Teks, Angka & Selectbox agar Garisnya Tegas */
+    div[data-baseweb="input"], div[data-baseweb="select"] > div {{
+        border: 1.5px solid {warna_border} !important;
         border-radius: 10px !important;
-        background-color: {warna_card} !important;
     }}
 
     /* Kotak Total Harga Besar */
     .total-display {{
         background: linear-gradient(145deg, {warna_card}, {warna_bg});
-        border: 2px solid {warna_primary};
+        border: 2.5px solid {warna_primary};
         border-bottom: 6px solid {warna_primary};
         border-radius: 16px;
         padding: 20px;
@@ -228,10 +224,9 @@ st.markdown(
             0 18px 32px -8px rgba(0, 0, 0, 0.18),
             0 6px 14px -4px {warna_primary}55,
             inset 0 3px 8px rgba(0, 0, 0, 0.08);
-        letter-spacing: 0.5px;
     }}
 
-    /* Header Bar Atas 3D dengan Garis Pinggir Tegas */
+    /* Header Bar Atas 3D */
     .header-bar-3d {{
         background: {warna_card};
         padding: 13px 22px;
@@ -243,11 +238,11 @@ st.markdown(
         justify-content: space-between;
         align-items: center;
         box-shadow:
-            0 12px 24px -6px rgba(0, 0, 0, 0.12),
-            0 4px 8px -2px rgba(0, 0, 0, 0.06);
+            0 12px 24px -6px rgba(0, 0, 0, 0.14),
+            0 4px 8px -2px rgba(0, 0, 0, 0.08);
     }}
 
-    /* Kartu Produk di Katalog Kanan */
+    /* Kartu Produk di Katalog Kanan (Floating 3D Card dengan Garis Tegas) */
     .product-box {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 2px solid {warna_border};
@@ -257,9 +252,8 @@ st.markdown(
         text-align: center;
         margin-bottom: 10px;
         box-shadow:
-            0 12px 22px -6px rgba(0, 0, 0, 0.14),
-            0 4px 8px -2px rgba(0, 0, 0, 0.08),
-            inset 0 1px 1px rgba(255, 255, 255, 0.75);
+            0 12px 22px -6px rgba(0, 0, 0, 0.15),
+            0 4px 8px -2px rgba(0, 0, 0, 0.08);
         transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.22s ease;
     }}
     .product-box:hover {{
@@ -268,18 +262,16 @@ st.markdown(
         border-bottom-color: {warna_primary};
         box-shadow:
             0 22px 34px -8px rgba(0, 0, 0, 0.22),
-            0 10px 20px -4px {warna_primary}66,
-            inset 0 1px 2px rgba(255, 255, 255, 0.9);
+            0 10px 20px -4px {warna_primary}66;
     }}
     .product-emoji {{
         font-size: 40px;
         margin-bottom: 6px;
         filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.24));
-        transition: transform 0.22s ease, filter 0.22s ease;
+        transition: transform 0.22s ease;
     }}
     .product-box:hover .product-emoji {{
         transform: scale(1.15) translateY(-2px);
-        filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.30));
     }}
     .product-name {{
         font-weight: 700;
@@ -292,91 +284,61 @@ st.markdown(
     }}
     .product-price {{
         font-size: 12px;
-        opacity: 0.85;
+        opacity: 0.9;
         font-weight: 600;
     }}
 
-    /* Tombol Utama 3D Tactile Push-Button */
+    /* Tombol Utama 3D */
     div.stButton > button[kind="primary"] {{
         background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
-        border: 2px solid {warna_primary_dark} !important;
-        border-bottom: 5px solid #111827 !important;
+        border: 1.5px solid {warna_primary_dark} !important;
+        border-bottom: 5px solid #0F172A !important;
         color: #FFFFFF !important;
         font-weight: 700;
         border-radius: 12px;
         box-shadow:
             0 12px 22px -5px {warna_primary}88,
-            0 6px 12px rgba(0, 0, 0, 0.22),
-            inset 0 1px 1px rgba(255, 255, 255, 0.45);
+            0 6px 12px rgba(0, 0, 0, 0.22);
         transition: all 0.16s ease !important;
     }}
     div.stButton > button[kind="primary"]:hover {{
         transform: translateY(-3px);
         box-shadow:
             0 18px 28px -5px {warna_primary}AA,
-            0 10px 18px rgba(0, 0, 0, 0.28),
-            inset 0 1px 2px rgba(255, 255, 255, 0.6);
+            0 10px 18px rgba(0, 0, 0, 0.28);
     }}
     div.stButton > button[kind="primary"]:active {{
         transform: translateY(3px);
         border-bottom-width: 1px !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.20);
     }}
     div.stButton > button[kind="primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder (+ Tambah, Batal, Hapus) dengan Garis Pinggir Tegas */
+    /* Tombol Sekunder 3D dengan Garis Tegas */
     div.stButton > button[kind="secondary"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
-        border: 2px solid {warna_border} !important;
+        border: 1.5px solid {warna_border} !important;
         border-bottom: 4px solid {warna_border} !important;
         color: {warna_text} !important;
         font-weight: 600;
         border-radius: 11px;
         box-shadow:
-            0 8px 16px -4px rgba(0, 0, 0, 0.12),
-            0 3px 6px rgba(0, 0, 0, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            0 8px 16px -4px rgba(0, 0, 0, 0.14),
+            0 3px 6px rgba(0, 0, 0, 0.08);
         transition: all 0.16s ease !important;
     }}
     div.stButton > button[kind="secondary"]:hover {{
         transform: translateY(-2px);
         border-color: {warna_primary} !important;
         border-bottom-color: {warna_primary} !important;
-        box-shadow:
-            0 12px 20px -4px rgba(0, 0, 0, 0.18),
-            0 4px 10px -2px {warna_primary}55;
     }}
     div.stButton > button[kind="secondary"]:active {{
         transform: translateY(2px);
         border-bottom-width: 1px !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.10);
     }}
 
-    /* Tombol Download Excel & Struk 3D */
-    div.stDownloadButton > button {{
-        border: 2px solid {warna_border} !important;
-        border-radius: 12px !important;
-        border-bottom: 5px solid rgba(0, 0, 0, 0.35) !important;
-        box-shadow:
-            0 12px 22px -5px rgba(0, 0, 0, 0.20),
-            0 4px 8px rgba(0, 0, 0, 0.10) !important;
-        font-weight: 700 !important;
-        transition: all 0.16s ease !important;
-    }}
-    div.stDownloadButton > button:hover {{
-        transform: translateY(-3px);
-        box-shadow:
-            0 18px 28px -5px rgba(0, 0, 0, 0.26),
-            0 6px 12px rgba(0, 0, 0, 0.14) !important;
-    }}
-    div.stDownloadButton > button:active {{
-        transform: translateY(2px);
-        border-bottom-width: 1px !important;
-    }}
-
-    /* Kartu Metrik Keuangan 3D dengan Garis Pinggir Tegas */
+    /* Kartu Metrik Keuangan 3D dengan Garis Tegas */
     div[data-testid="stMetric"] {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 2px solid {warna_border};
@@ -384,38 +346,40 @@ st.markdown(
         border-radius: 14px;
         padding: 16px 18px;
         box-shadow:
-            0 14px 26px -6px rgba(0, 0, 0, 0.13),
-            0 5px 10px -3px rgba(0, 0, 0, 0.07);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }}
-    div[data-testid="stMetric"]:hover {{
-        transform: translateY(-3px);
-        box-shadow:
-            0 20px 32px -6px rgba(0, 0, 0, 0.18),
-            0 8px 16px -4px {warna_primary}44;
+            0 14px 26px -6px rgba(0, 0, 0, 0.15),
+            0 5px 10px -3px rgba(0, 0, 0, 0.09);
     }}
 
-    /* Tabel Jurnal Umum & Jurnal Kas Kecil dengan Garis Grid Tegas */
-    div[data-testid="stTable"] table {{
-        width: 100% !important;
-        border-collapse: collapse !important;
-        background-color: {warna_card} !important;
-        border: 2px solid {warna_border} !important;
-        border-radius: 10px !important;
-        overflow: hidden !important;
+    /* Garis Tab Navigasi Laporan agar Tidak Samar */
+    div[data-baseweb="tab-list"] {{
+        border-bottom: 2px solid {warna_border} !important;
+        gap: 8px;
     }}
-    div[data-testid="stTable"] th {{
-        background-color: {warna_bg} !important;
-        color: {warna_text} !important;
-        border: 1.5px solid {warna_border} !important;
-        font-weight: 800 !important;
-        padding: 10px 12px !important;
+
+    /* Tabel Jurnal Berbingkai Penuh & Garis Kolom Jelas */
+    .jurnal-table {{
+        width: 100%;
+        border-collapse: collapse;
+        background-color: {warna_card};
+        color: {warna_text};
+        font-size: 14px;
+        border: 2px solid {warna_border};
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.08);
     }}
-    div[data-testid="stTable"] td {{
-        background-color: {warna_card} !important;
-        color: {warna_text} !important;
-        border: 1.5px solid {warna_border} !important;
-        padding: 9px 12px !important;
+    .jurnal-table th {{
+        background-color: {warna_bg};
+        color: {warna_text};
+        font-weight: 700;
+        text-align: left;
+        padding: 12px 14px;
+        border: 1.5px solid {warna_border};
+    }}
+    .jurnal-table td {{
+        padding: 10px 14px;
+        border: 1.5px solid {warna_border};
+        color: {warna_text};
     }}
     </style>
     """,
@@ -510,7 +474,7 @@ if menu_aktif == "🛒 Kasir (POS)":
             r5.markdown("**Total Harga**")
             r6.markdown(f"<div style='text-align:right;'><b>Rp {total_akhir:,.0f}</b></div>", unsafe_allow_html=True)
 
-            st.write("")
+            st.divider()
             metode_bayar = st.radio("Metode Pembayaran:", ["Cash", "QRIS"], horizontal=True)
 
             btn_kosong, btn_bayar = st.columns([1, 2])
@@ -559,6 +523,7 @@ if menu_aktif == "🛒 Kasir (POS)":
             s = st.session_state.struk_terakhir
             with st.container(border=True):
                 st.markdown("**🖨️ Struk Transaksi Terakhir (Siap Cetak)**")
+                st.divider()
 
                 baris_item_html = ""
                 baris_item_txt = ""
@@ -592,7 +557,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                     <div style="border-top:1.5px dashed #475569; margin:8px 0;"></div>
                     <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
                 </div>
-                <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:2px solid #111827; border-bottom:4px solid #111827; padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 10px 18px -4px rgba(0,0,0,0.25);">
+                <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:none; border-bottom:4px solid rgba(0,0,0,0.4); padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 10px 18px -4px rgba(0,0,0,0.25);">
                     🖨️ Cetak Struk / Simpan PDF
                 </button>
                 <script>
@@ -643,6 +608,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                 horizontal=True,
                 label_visibility="collapsed",
             )
+            st.divider()
 
             produk_tampil = [
                 p for p in PRODUK_FNB
@@ -650,7 +616,6 @@ if menu_aktif == "🛒 Kasir (POS)":
                 and (cari_produk.lower() in p["nama"].lower())
             ]
 
-            st.write("")
             cols_per_row = 4
             for i in range(0, len(produk_tampil), cols_per_row):
                 row_cols = st.columns(cols_per_row)
@@ -700,6 +665,7 @@ elif menu_aktif == "💸 Kas Kecil (Masuk/Keluar)":
 
             nominal = st.number_input("Nominal (Rp):", min_value=1000, step=5000)
             pj = st.text_input("Nama Penanggung Jawab:")
+            st.divider()
 
             if st.form_submit_button("Simpan Mutasi Kas Kecil", type="primary"):
                 if keterangan and pj:
@@ -788,8 +754,8 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         akun_kas = "Kas di Tangan" if row["metode"] == "Cash" else "Bank / Piutang QRIS"
         jurnal_umum_list.extend([
             {"Waktu": row["waktu"], "Ref": row["no_faktur"], "Akun": akun_kas, "Debit": row["total_harga"], "Kredit": 0},
-            {"Waktu": "-", "Ref": "-", "Akun": f"↳ Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
-            {"Waktu": "-", "Ref": "-", "Akun": "↳ Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
+            {"Waktu": "", "Ref": "", "Akun": f"\u00A0\u00A0\u00A0\u00A0Pendapatan Penjualan ({row['item']})", "Debit": 0, "Kredit": row["subtotal"]},
+            {"Waktu": "", "Ref": "", "Akun": "\u00A0\u00A0\u00A0\u00A0Utang Pajak Restoran (PB1 10%)", "Debit": 0, "Kredit": row["pajak"]},
         ])
     df_jurnal_umum = (
         pd.DataFrame(jurnal_umum_list)
@@ -811,10 +777,10 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                     "Kredit": 0,
                 },
                 {
-                    "Waktu": "-",
-                    "Ref": "-",
-                    "PJ": "-",
-                    "Akun": f"↳ {row['akun_lawan']}",
+                    "Waktu": "",
+                    "Ref": "",
+                    "PJ": "",
+                    "Akun": f"\u00A0\u00A0\u00A0\u00A0{row['akun_lawan']}",
                     "Debit": 0,
                     "Kredit": row["jumlah"],
                 },
@@ -830,10 +796,10 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                     "Kredit": 0,
                 },
                 {
-                    "Waktu": "-",
-                    "Ref": "-",
-                    "PJ": "-",
-                    "Akun": "↳ Kas Kecil",
+                    "Waktu": "",
+                    "Ref": "",
+                    "PJ": "",
+                    "Akun": "\u00A0\u00A0\u00A0\u00A0Kas Kecil",
                     "Debit": 0,
                     "Kredit": row["jumlah"],
                 },
@@ -867,7 +833,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
         "🧾 Jurnal Kas Kecil (Petty Cash)",
     ])
 
-    # --- TAB 1: BUKU KAS DENGAN GARIS BARIS TEGAS & TOMBOL HAPUS ---
+    # --- TAB 1: BUKU KAS DENGAN GARIS PEMBATAS TEGAS & TOMBOL HAPUS ---
     with tab1:
         st.caption("Klik tombol **🗑️** di ujung kanan baris apabila ingin membatalkan/menghapus transaksi tertentu.")
         with st.container(border=True):
@@ -875,7 +841,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
             headers = ["Waktu", "No. Bukti", "Pos Kas", "Keterangan", "Pemasukan", "Pengeluaran", "Saldo", "Aksi"]
             for col, text in zip(h_cols, headers):
                 col.markdown(f"**{text}**")
-            st.markdown(f"<hr style='margin: 6px 0; border-top: 2px solid {warna_border};'>", unsafe_allow_html=True)
+            st.divider()
 
             for idx, r in df_kas.iterrows():
                 row_cols = st.columns([1.8, 1.2, 1.3, 2.7, 1.3, 1.3, 1.4, 0.7])
@@ -888,7 +854,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                 row_cols[6].markdown(f"**Rp {r['Saldo Kumulatif']:,.0f}**")
 
                 if r["tipe_db"] == "awal":
-                    row_cols[7].markdown("<div style='padding-top:6px; opacity:0.7;'>🔒</div>", unsafe_allow_html=True)
+                    row_cols[7].markdown("<div style='padding-top:6px; opacity:0.6;'>🔒</div>", unsafe_allow_html=True)
                 else:
                     if row_cols[7].button("🗑️", key=f"del_{r['tipe_db']}_{r['id_db']}", help="Batalkan / hapus transaksi ini"):
                         if r["tipe_db"] == "penjualan":
@@ -900,34 +866,34 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                         st.rerun()
 
                 if idx < len(df_kas) - 1:
-                    st.markdown(f"<hr style='margin: 6px 0; border-top: 1.5px solid {warna_border};'>", unsafe_allow_html=True)
+                    st.markdown(f"<hr style='margin: 6px 0; border-top: 1.5px solid {warna_border} !important;'>", unsafe_allow_html=True)
 
-    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
+    # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN (TABEL BERGARIS TEGAS) ---
     with tab2:
-        with st.container(border=True):
-            st.markdown("#### 📖 Jurnal Umum — Siklus Pendapatan (Penjualan)")
-            if not df_jurnal_umum.empty:
-                tot_d, tot_k = df_jurnal_umum["Debit"].sum(), df_jurnal_umum["Kredit"].sum()
-                df_ju_tampil = df_jurnal_umum.copy()
-                df_ju_tampil["Debit"] = df_ju_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-                df_ju_tampil["Kredit"] = df_ju_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-                st.table(df_ju_tampil)
-                if tot_d == tot_k:
-                    st.success(f"✅ JURNAL UMUM BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
-            else:
-                st.info("Belum ada transaksi penjualan yang tercatat pada Jurnal Umum.")
+        st.markdown("#### 📖 Jurnal Umum — Siklus Pendapatan (Penjualan)")
+        if not df_jurnal_umum.empty:
+            tot_d, tot_k = df_jurnal_umum["Debit"].sum(), df_jurnal_umum["Kredit"].sum()
+            df_ju_tampil = df_jurnal_umum.copy()
+            df_ju_tampil["Debit"] = df_ju_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_ju_tampil["Kredit"] = df_ju_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.markdown(df_ju_tampil.to_html(index=False, classes="jurnal-table"), unsafe_allow_html=True)
+            st.write("")
+            if tot_d == tot_k:
+                st.success(f"✅ JURNAL UMUM BALANCE: Total Debit (Rp {tot_d:,.0f}) = Total Kredit (Rp {tot_k:,.0f})")
+        else:
+            st.info("Belum ada transaksi penjualan yang tercatat pada Jurnal Umum.")
 
-    # --- TAB 3: JURNAL KAS KECIL TERPISAH ---
+    # --- TAB 3: JURNAL KAS KECIL TERPISAH (TABEL BERGARIS TEGAS) ---
     with tab3:
-        with st.container(border=True):
-            st.markdown("#### 🧾 Jurnal Kas Kecil (*Petty Cash Journal*)")
-            if not df_jurnal_kk.empty:
-                tot_d_kk, tot_k_kk = df_jurnal_kk["Debit"].sum(), df_jurnal_kk["Kredit"].sum()
-                df_jkk_tampil = df_jurnal_kk.copy()
-                df_jkk_tampil["Debit"] = df_jkk_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-                df_jkk_tampil["Kredit"] = df_jkk_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
-                st.table(df_jkk_tampil)
-                if tot_d_kk == tot_k_kk:
-                    st.success(f"✅ JURNAL KAS KECIL BALANCE: Total Debit (Rp {tot_d_kk:,.0f}) = Total Kredit (Rp {tot_k_kk:,.0f})")
-            else:
-                st.info("Belum ada mutasi kas kecil (pengisian maupun pengeluaran) yang tercatat.")
+        st.markdown("#### 🧾 Jurnal Kas Kecil (*Petty Cash Journal*)")
+        if not df_jurnal_kk.empty:
+            tot_d_kk, tot_k_kk = df_jurnal_kk["Debit"].sum(), df_jurnal_kk["Kredit"].sum()
+            df_jkk_tampil = df_jurnal_kk.copy()
+            df_jkk_tampil["Debit"] = df_jkk_tampil["Debit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            df_jkk_tampil["Kredit"] = df_jkk_tampil["Kredit"].apply(lambda x: f"Rp {x:,.0f}" if x > 0 else "-")
+            st.markdown(df_jkk_tampil.to_html(index=False, classes="jurnal-table"), unsafe_allow_html=True)
+            st.write("")
+            if tot_d_kk == tot_k_kk:
+                st.success(f"✅ JURNAL KAS KECIL BALANCE: Total Debit (Rp {tot_d_kk:,.0f}) = Total Kredit (Rp {tot_k_kk:,.0f})")
+        else:
+            st.info("Belum ada mutasi kas kecil (pengisian maupun pengeluaran) yang tercatat.")
