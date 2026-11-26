@@ -242,7 +242,7 @@ st.markdown(
             0 4px 8px -2px rgba(0, 0, 0, 0.08);
     }}
 
-    /* Kartu Produk di Katalog Kanan (Floating 3D Card dengan Garis Tegas) */
+    /* Kartu Produk Makanan & Minuman -> Berubah Warna Seperti Tombol "Bayar" + Efek Pop-It */
     .product-box {{
         background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 2px solid {warna_border};
@@ -251,27 +251,36 @@ st.markdown(
         padding: 14px 8px;
         text-align: center;
         margin-bottom: 10px;
+        cursor: pointer;
         box-shadow:
             0 12px 22px -6px rgba(0, 0, 0, 0.15),
             0 4px 8px -2px rgba(0, 0, 0, 0.08);
-        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+        transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
-    .product-box:hover {{
-        transform: translateY(-6px);
-        border-color: {warna_primary};
-        border-bottom-color: {warna_primary};
+    .product-box:hover,
+    div[data-testid="column"]:has(button:hover) .product-box {{
+        background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
+        border-color: {warna_primary_dark} !important;
+        border-bottom: 5px solid #0F172A !important;
+        transform: translateY(-6px) scale(1.05);
         box-shadow:
-            0 22px 34px -8px rgba(0, 0, 0, 0.22),
-            0 10px 20px -4px {warna_primary}66;
+            0 20px 32px -6px {warna_primary}AA,
+            0 10px 18px rgba(0, 0, 0, 0.25);
+    }}
+    .product-box:active {{
+        transform: translateY(2px) scale(0.97);
+        border-bottom-width: 2px !important;
     }}
     .product-emoji {{
         font-size: 40px;
         margin-bottom: 6px;
         filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.24));
-        transition: transform 0.22s ease;
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     }}
-    .product-box:hover .product-emoji {{
-        transform: scale(1.15) translateY(-2px);
+    .product-box:hover .product-emoji,
+    div[data-testid="column"]:has(button:hover) .product-emoji {{
+        transform: scale(1.18) translateY(-2px);
+        filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.35));
     }}
     .product-name {{
         font-weight: 700;
@@ -281,11 +290,21 @@ st.markdown(
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        transition: color 0.2s ease;
     }}
     .product-price {{
         font-size: 12px;
         opacity: 0.9;
         font-weight: 600;
+        color: {warna_text} !important;
+        transition: color 0.2s ease;
+    }}
+    .product-box:hover .product-name,
+    .product-box:hover .product-price,
+    div[data-testid="column"]:has(button:hover) .product-name,
+    div[data-testid="column"]:has(button:hover) .product-price {{
+        color: #FFFFFF !important;
+        opacity: 1 !important;
     }}
 
     /* Tombol Utama ("Bayar") 3D + Efek Pop-It */
