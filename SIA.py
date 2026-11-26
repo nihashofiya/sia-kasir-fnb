@@ -69,7 +69,7 @@ if "struk_terakhir" not in st.session_state:
 # SIDEBAR: NAVIGASI & PENGATURAN TEMA WARNA MANDIRI
 # ==========================================================
 st.sidebar.markdown(
-    "<h2 id='brand-title' style='margin-bottom:0; text-shadow: 0 2px 6px rgba(0,0,0,0.08);'>🟢 SIA-POS FnB</h2>"
+    "<h2 id='brand-title' style='margin-bottom:0; text-shadow: 2px 3px 6px rgba(0,0,0,0.14);'>🟢 SIA-POS FnB</h2>"
     "<p style='font-size:12px; opacity:0.8;'>Sistem Informasi Akuntansi</p>",
     unsafe_allow_html=True,
 )
@@ -109,45 +109,45 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
     PRESETS = {
         "Hijau Modern (Default)": {
             "primary": "#28A745",
-            "primary_dark": "#1E8736",
-            "bg": "#EEF2F6",
+            "primary_dark": "#1B7A32",
+            "bg": "#E6ECF5",
             "card": "#FFFFFF",
             "text": "#1F2937",
-            "border": "rgba(255, 255, 255, 0.8)",
+            "border": "#CBD5E1",
         },
         "Warm Coffee Shop (Cokelat & Krem)": {
             "primary": "#8B5A2B",
-            "primary_dark": "#6E441E",
-            "bg": "#F3EDE6",
+            "primary_dark": "#5E3A18",
+            "bg": "#EDE5DB",
             "card": "#FFFDF9",
             "text": "#3E2723",
-            "border": "rgba(255, 255, 255, 0.8)",
+            "border": "#D5C3AE",
         },
         "Biru Profesional": {
             "primary": "#2563EB",
-            "primary_dark": "#1D4ED8",
-            "bg": "#EDF2F8",
+            "primary_dark": "#1A44A8",
+            "bg": "#E3EAF4",
             "card": "#FFFFFF",
             "text": "#0F172A",
-            "border": "rgba(255, 255, 255, 0.8)",
+            "border": "#C1CFE0",
         },
         "Dark Mode Elegan": {
             "primary": "#10B981",
-            "primary_dark": "#059669",
-            "bg": "#0F172A",
+            "primary_dark": "#078058",
+            "bg": "#0B1120",
             "card": "#1E293B",
             "text": "#F8FAFC",
-            "border": "rgba(255, 255, 255, 0.08)",
+            "border": "#334155",
         },
     }
 
     if preset_tema == "Custom Warna Sendiri...":
         warna_primary = st.color_picker("Warna Aksen / Tombol Utama", "#28A745")
-        warna_primary_dark = warna_primary
-        warna_bg = st.color_picker("Warna Latar Belakang", "#EEF2F6")
+        warna_primary_dark = "#1A1A1A"
+        warna_bg = st.color_picker("Warna Latar Belakang", "#E6ECF5")
         warna_card = st.color_picker("Warna Kartu & Sidebar", "#FFFFFF")
         warna_text = st.color_picker("Warna Teks", "#1F2937")
-        warna_border = "rgba(255, 255, 255, 0.5)"
+        warna_border = "#C8D1DF"
     else:
         pilihan = PRESETS[preset_tema]
         warna_primary = pilihan["primary"]
@@ -157,7 +157,7 @@ with st.sidebar.expander("🎨 Sesuaikan Warna Tampilan", expanded=False):
         warna_text = pilihan["text"]
         warna_border = pilihan["border"]
 
-# --- TERAPKAN CSS DIMENSI BAYANGAN (SOFT MULTI-LAYERED SHADOW ELEVATION) ---
+# --- TERAPKAN CSS BERDIMENSI 3D + MULTI-LAYERED DEEP SHADOWS ---
 st.markdown(
     f"""
     <style>
@@ -170,91 +170,98 @@ st.markdown(
         color: {warna_text};
     }}
 
-    /* Sidebar Melayang dengan Bayangan Halus */
+    /* Sidebar Berdimensi dengan Deep Drop Shadow */
     section[data-testid="stSidebar"] {{
         background-color: {warna_card};
-        border-right: none;
-        box-shadow: 8px 0 30px rgba(15, 23, 42, 0.07), 2px 0 8px rgba(15, 23, 42, 0.03);
+        border-right: 1px solid {warna_border};
+        box-shadow: 8px 0 28px rgba(0, 0, 0, 0.12), 2px 0 8px rgba(0, 0, 0, 0.06);
     }}
     #brand-title {{
         color: {warna_primary} !important;
     }}
 
-    /* Container Berbingkai (Kartu Panel Mengambang - Soft Shadow Elevation) */
+    /* Container Berbingkai (Kartu Panel 3D Melayang Tinggi) */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
         background-color: {warna_card};
         border: 1px solid {warna_border} !important;
+        border-bottom: 5px solid {warna_border} !important;
         border-radius: 16px;
         box-shadow:
-            0 12px 28px -4px rgba(15, 23, 42, 0.08),
-            0 4px 10px -2px rgba(15, 23, 42, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        transition: box-shadow 0.25s ease, transform 0.25s ease;
+            0 20px 35px -10px rgba(0, 0, 0, 0.14),
+            0 8px 16px -6px rgba(0, 0, 0, 0.08),
+            0 2px 4px rgba(0, 0, 0, 0.04);
+        transition: all 0.25s ease;
     }}
 
-    /* Kotak Total Harga Besar (Floating Display dengan Cahaya Aksen & Bayangan Dalam) */
+    /* Kotak Total Harga Besar (Layar Kasir 3D Cekung + Bayangan Pendar Warna) */
     .total-display {{
-        background: {warna_card};
-        border: 1px solid {warna_border};
+        background: linear-gradient(145deg, {warna_card}, {warna_bg});
+        border: 2px solid {warna_primary};
+        border-bottom: 6px solid {warna_primary};
         border-radius: 16px;
         padding: 20px;
         text-align: center;
-        font-size: 34px;
+        font-size: 36px;
         font-weight: 900;
-        color: {warna_primary} !important;
+        color: {warna_text} !important;
+        text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.12);
         margin-bottom: 18px;
         box-shadow:
-            0 14px 30px -6px rgba(15, 23, 42, 0.10),
-            0 4px 12px -2px rgba(15, 23, 42, 0.05),
-            inset 0 2px 6px rgba(15, 23, 42, 0.04);
+            0 18px 32px -8px rgba(0, 0, 0, 0.18),
+            0 6px 14px -4px {warna_primary}55,
+            inset 0 3px 8px rgba(0, 0, 0, 0.08);
         letter-spacing: 0.5px;
     }}
 
-    /* Header Bar Atas Melayang */
-    .header-bar-shadow {{
+    /* Header Bar Atas 3D */
+    .header-bar-3d {{
         background: {warna_card};
         padding: 13px 22px;
         border-radius: 14px;
         border: 1px solid {warna_border};
+        border-bottom: 4px solid {warna_border};
         margin-bottom: 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         box-shadow:
-            0 10px 24px -4px rgba(15, 23, 42, 0.07),
-            0 2px 6px -1px rgba(15, 23, 42, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            0 12px 24px -6px rgba(0, 0, 0, 0.12),
+            0 4px 8px -2px rgba(0, 0, 0, 0.06);
     }}
 
-    /* Kartu Produk di Katalog Kanan (Soft Elevation Card) */
+    /* Kartu Produk di Katalog Kanan (Floating 3D Card dengan Deep Shadow) */
     .product-box {{
-        background: {warna_card};
+        background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 1px solid {warna_border};
-        border-radius: 16px;
-        padding: 16px 10px;
+        border-bottom: 5px solid {warna_border};
+        border-radius: 15px;
+        padding: 14px 8px;
         text-align: center;
         margin-bottom: 10px;
         box-shadow:
-            0 8px 20px -4px rgba(15, 23, 42, 0.07),
-            0 2px 6px -1px rgba(15, 23, 42, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
-        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+            0 12px 22px -6px rgba(0, 0, 0, 0.14),
+            0 4px 8px -2px rgba(0, 0, 0, 0.08),
+            inset 0 1px 1px rgba(255, 255, 255, 0.75);
+        transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, border-color 0.22s ease;
     }}
     .product-box:hover {{
-        transform: translateY(-5px);
+        transform: translateY(-6px);
+        border-color: {warna_primary};
+        border-bottom-color: {warna_primary};
         box-shadow:
-            0 18px 32px -6px rgba(15, 23, 42, 0.14),
-            0 6px 14px -3px rgba(15, 23, 42, 0.07),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            0 22px 34px -8px rgba(0, 0, 0, 0.22),
+            0 10px 20px -4px {warna_primary}66,
+            inset 0 1px 2px rgba(255, 255, 255, 0.9);
     }}
     .product-emoji {{
-        font-size: 38px;
+        font-size: 40px;
         margin-bottom: 6px;
-        filter: drop-shadow(0 6px 8px rgba(15, 23, 42, 0.16));
-        transition: transform 0.25s ease;
+        filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.24));
+        transition: transform 0.22s ease, filter 0.22s ease;
     }}
     .product-box:hover .product-emoji {{
-        transform: scale(1.12) translateY(-2px);
+        transform: scale(1.15) translateY(-2px);
+        filter: drop-shadow(0 12px 10px rgba(0, 0, 0, 0.30));
     }}
     .product-name {{
         font-weight: 700;
@@ -267,99 +274,106 @@ st.markdown(
     }}
     .product-price {{
         font-size: 12px;
-        opacity: 0.78;
+        opacity: 0.85;
         font-weight: 600;
     }}
 
-    /* Tombol Utama (Bayangan Berwarna Lembut & Efek Melayang) */
+    /* Tombol Utama 3D Tactile Push-Button + Colored Ambient Shadow */
     div.stButton > button[kind="primary"] {{
-        background: linear-gradient(135deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
-        border: none !important;
+        background: linear-gradient(180deg, {warna_primary} 0%, {warna_primary_dark} 100%) !important;
+        border: 1px solid {warna_primary_dark} !important;
+        border-bottom: 5px solid #111827 !important;
         color: #FFFFFF !important;
         font-weight: 700;
         border-radius: 12px;
         box-shadow:
-            0 10px 20px -4px rgba(0, 0, 0, 0.22),
-            0 4px 8px -2px rgba(0, 0, 0, 0.12),
-            inset 0 1px 1px rgba(255, 255, 255, 0.35);
-        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            0 12px 22px -5px {warna_primary}88,
+            0 6px 12px rgba(0, 0, 0, 0.22),
+            inset 0 1px 1px rgba(255, 255, 255, 0.45);
+        transition: all 0.16s ease !important;
     }}
     div.stButton > button[kind="primary"]:hover {{
         transform: translateY(-3px);
         box-shadow:
-            0 16px 28px -6px rgba(0, 0, 0, 0.28),
-            0 6px 12px -2px rgba(0, 0, 0, 0.15),
-            inset 0 1px 2px rgba(255, 255, 255, 0.45);
+            0 18px 28px -5px {warna_primary}AA,
+            0 10px 18px rgba(0, 0, 0, 0.28),
+            inset 0 1px 2px rgba(255, 255, 255, 0.6);
     }}
     div.stButton > button[kind="primary"]:active {{
-        transform: translateY(1px);
-        box-shadow:
-            0 4px 10px -2px rgba(0, 0, 0, 0.18),
-            inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        transform: translateY(3px);
+        border-bottom-width: 1px !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.20);
     }}
     div.stButton > button[kind="primary"] * {{
         color: #FFFFFF !important;
     }}
 
-    /* Tombol Sekunder (+ Tambah, Batal, Hapus) dengan Soft Drop Shadow */
+    /* Tombol Sekunder (+ Tambah, Batal, Hapus) 3D Tactile + Deep Shadow */
     div.stButton > button[kind="secondary"] {{
-        background: {warna_card} !important;
+        background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%) !important;
         border: 1px solid {warna_border} !important;
+        border-bottom: 4px solid {warna_border} !important;
         color: {warna_text} !important;
         font-weight: 600;
         border-radius: 11px;
         box-shadow:
-            0 5px 12px -2px rgba(15, 23, 42, 0.08),
-            0 2px 4px -1px rgba(15, 23, 42, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
-        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+            0 8px 16px -4px rgba(0, 0, 0, 0.12),
+            0 3px 6px rgba(0, 0, 0, 0.06),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        transition: all 0.16s ease !important;
     }}
     div.stButton > button[kind="secondary"]:hover {{
         transform: translateY(-2px);
+        border-color: {warna_primary} !important;
+        border-bottom-color: {warna_primary} !important;
         box-shadow:
-            0 10px 20px -4px rgba(15, 23, 42, 0.14),
-            0 4px 8px -2px rgba(15, 23, 42, 0.06),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            0 12px 20px -4px rgba(0, 0, 0, 0.18),
+            0 4px 10px -2px {warna_primary}55;
     }}
     div.stButton > button[kind="secondary"]:active {{
-        transform: translateY(1px);
-        box-shadow:
-            0 2px 6px -1px rgba(15, 23, 42, 0.08),
-            inset 0 2px 4px rgba(15, 23, 42, 0.08);
+        transform: translateY(2px);
+        border-bottom-width: 1px !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.10);
     }}
 
-    /* Tombol Download Excel & Struk dengan Soft Shadow */
+    /* Tombol Download Excel & Struk 3D */
     div.stDownloadButton > button {{
         border-radius: 12px !important;
-        border: none !important;
+        border-bottom: 5px solid rgba(0, 0, 0, 0.3) !important;
         box-shadow:
-            0 10px 22px -4px rgba(15, 23, 42, 0.16),
-            0 4px 8px -2px rgba(15, 23, 42, 0.08),
-            inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+            0 12px 22px -5px rgba(0, 0, 0, 0.20),
+            0 4px 8px rgba(0, 0, 0, 0.10) !important;
         font-weight: 700 !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        transition: all 0.16s ease !important;
     }}
     div.stDownloadButton > button:hover {{
         transform: translateY(-3px);
         box-shadow:
-            0 16px 28px -6px rgba(15, 23, 42, 0.22),
-            0 6px 12px -2px rgba(15, 23, 42, 0.10) !important;
+            0 18px 28px -5px rgba(0, 0, 0, 0.26),
+            0 6px 12px rgba(0, 0, 0, 0.14) !important;
     }}
     div.stDownloadButton > button:active {{
-        transform: translateY(1px);
-        box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.14) !important;
+        transform: translateY(2px);
+        border-bottom-width: 1px !important;
     }}
 
-    /* Kartu Metrik Keuangan dengan Bayangan Lembut */
+    /* Kartu Metrik Keuangan 3D dengan Deep Shadow */
     div[data-testid="stMetric"] {{
-        background-color: {warna_card};
+        background: linear-gradient(180deg, {warna_card} 0%, {warna_bg} 100%);
         border: 1px solid {warna_border};
-        border-radius: 16px;
+        border-bottom: 5px solid {warna_primary};
+        border-radius: 14px;
         padding: 16px 18px;
         box-shadow:
-            0 10px 24px -4px rgba(15, 23, 42, 0.07),
-            0 3px 8px -2px rgba(15, 23, 42, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            0 14px 26px -6px rgba(0, 0, 0, 0.13),
+            0 5px 10px -3px rgba(0, 0, 0, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }}
+    div[data-testid="stMetric"]:hover {{
+        transform: translateY(-3px);
+        box-shadow:
+            0 20px 32px -6px rgba(0, 0, 0, 0.18),
+            0 8px 16px -4px {warna_primary}44;
     }}
     </style>
     """,
@@ -386,7 +400,7 @@ if st.sidebar.button("🗑️ Reset Semua Transaksi", disabled=not konfirmasi_re
 if menu_aktif == "🛒 Kasir (POS)":
     st.markdown(
         f"""
-        <div class="header-bar-shadow">
+        <div class="header-bar-3d">
             <span style="color:{warna_primary} !important; font-weight:800; font-size:14px;">● Online — Shift Pagi</span>
             <span style="font-weight:700; font-size:14px;">🏪 Kedai Kopi & Resto Mahasiswa</span>
         </div>
@@ -516,7 +530,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                     baris_item_txt += f"{it['nama']} ({it['qty']}x @ {it['harga']:,.0f}) = Rp {it['subtotal']:,.0f}\n"
 
                 html_struk = f"""
-                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 8px 20px rgba(0,0,0,0.08);">
+                <div id="area-struk" style="font-family: 'Courier New', monospace; background:#FFFDF7; padding:14px; border:1px dashed #9CA3AF; border-radius:10px; color:#111827; font-size:12px; box-shadow: 0 10px 20px rgba(0,0,0,0.12);">
                     <div style="text-align:center; font-weight:bold; font-size:14px; color:#111827;">KEDAI KOPI & RESTO MAHASISWA</div>
                     <div style="text-align:center; font-size:11px; margin-bottom:8px; color:#374151;">Sistem Informasi Akuntansi FnB</div>
                     <div style="border-top:1px dashed #9CA3AF; margin:6px 0;"></div>
@@ -536,7 +550,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                     <div style="border-top:1px dashed #9CA3AF; margin:8px 0;"></div>
                     <div style="text-align:center; font-size:11px; color:#374151;">Terima Kasih Atas Kunjungan Anda!</div>
                 </div>
-                <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:none; padding:11px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 8px 18px -3px rgba(0,0,0,0.22), inset 0 1px 1px rgba(255,255,255,0.3);">
+                <button onclick="printStruk()" style="margin-top:12px; width:100%; background:{warna_primary}; color:white; border:none; border-bottom:4px solid rgba(0,0,0,0.35); padding:10px; border-radius:10px; font-weight:bold; cursor:pointer; box-shadow: 0 10px 18px -4px rgba(0,0,0,0.25);">
                     🖨️ Cetak Struk / Simpan PDF
                 </button>
                 <script>
@@ -552,7 +566,7 @@ if menu_aktif == "🛒 Kasir (POS)":
                 }}
                 </script>
                 """
-                components.html(html_struk, height=350, scrolling=True)
+                components.html(html_struk, height=355, scrolling=True)
 
                 teks_struk = (
                     f"KEDAI KOPI & RESTO MAHASISWA\n"
@@ -843,7 +857,7 @@ elif menu_aktif == "📊 Laporan Kas & Jurnal":
                         st.rerun()
 
                 if idx < len(df_kas) - 1:
-                    st.markdown("<hr style='margin: 4px 0; border-top: 1px solid rgba(15, 23, 42, 0.08);'>", unsafe_allow_html=True)
+                    st.markdown(f"<hr style='margin: 4px 0; border-top: 1px solid {warna_border};'>", unsafe_allow_html=True)
 
     # --- TAB 2: JURNAL UMUM KHUSUS PENJUALAN ---
     with tab2:
